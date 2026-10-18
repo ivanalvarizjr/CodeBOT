@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0.0",
+  "profiles": [
+    {"role":"orchestrator","path":"profiles/canonical/orchestrator.agent.md","sha256":"17358283795D583D83F16319E8B99FE022CDBD4B3C49BBF1F932AC7631171738"},
+    {"role":"data-analyst-manager","path":"profiles/canonical/data-analyst-manager.agent.md","sha256":"D51D07BDB45A1EE644358BA59EC9A9CD1516932C3DEC9DE38B1802D43191AF15"},
+    {"role":"application-uiux-designer-manager","path":"profiles/canonical/application-uiux-designer-manager.agent.md","sha256":"47F9755F80153A10687CB5D47FEF99A1C29EA32369C735C9AF53EF1A105BB738"},
+    {"role":"software-engineer","path":"profiles/canonical/software-engineer.agent.md","sha256":"E0275B0C8BE654311658AFA08B4D89DAD0CCC11A803B6D12A5051F4424189C41"},
+    {"role":"prompt-engineer","path":"profiles/canonical/prompt-engineer.agent.md","sha256":"865F6CF374CEEB7C0C2E37B3BE10CE4DA79CFF44A74FEE07BBB27C0D9F90CA48"}
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codebot.local/schemas/quarantine.schema.json",
+  "title": "CodeBOT folder quarantine configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "mode",
+    "default_state",
+    "policy",
+    "entries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "mode": {
+      "enum": [
+        "enabled",
+        "disabled"
+      ]
+    },
+    "default_state": {
+      "enum": [
+        "ACTIVE",
+        "QUARANTINED"
+      ]
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path_match",
+        "quarantine_scope",
+        "quarantine_precedence",
+        "nested_activation_overrides_quarantined_parent",
+        "activation_grants_write",
+        "outside_project_root_requires_separate_scope_approval",
+        "config_write_requires_separate_approval",
+        "enforcement_status"
+      ],
+      "properties": {
+        "path_match": {
+          "const": "platform_aware_absolute_path_segment_boundary"
+        },
+        "quarantine_scope": {
+          "const": "directory_and_descendants"
+        },
+        "quarantine_precedence": {
+          "const": "DENY"
+        },
+        "nested_activation_overrides_quarantined_parent": {
+          "type": "boolean"
+        },
+        "activation_grants_write": {
+          "type": "boolean"
+        },
+        "outside_project_root_requires_separate_scope_approval": {
+          "type": "boolean"
+        },
+        "config_write_requires_separate_approval": {
+          "type": "boolean"
+        },
+        "enforcement_status": {
+          "enum": [
+            "POLICY_ONLY_UNTIL_RUNTIME_OR_OS_ENFORCEMENT_IS_VERIFIED",
+            "POLICY_ONLY",
+            "RUNTIME_ENFORCED",
+            "OS_ENFORCED",
+            "NOT_VERIFIED"
+          ]
+        }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "state",
+          "scope",
+          "source"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "enum": [
+              "ACTIVE",
+              "QUARANTINED"
+            ]
+          },
+          "scope": {
+            "const": "directory_and_descendants"
+          },
+          "source": {
+            "enum": [
+              "owner",
+              "policy",
+              "migration",
+              "runtime"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}
