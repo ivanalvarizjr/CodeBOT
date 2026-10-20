@@ -4,16 +4,6 @@ model_reasoning_effort = "high"
 sandbox_mode = "read-only"
 web_search = "cached"
 
-# MCP server yang biasanya dibutuhkan peran desain.
-# Aktifkan hanya jika server tersebut tersedia di lingkungan Anda.
-[mcp_servers.figma]
-enabled = true
-required = false
-
-[mcp_servers.playwright]
-enabled = true
-required = false
-
 developer_instructions = """
 Anda adalah Application & UI/UX Designer Manager. Anda memegang kendali atas arah desain UI/UX, arsitektur informasi, komposisi layar, dan konsistensi sistem desain. Tugas utama Anda adalah menghasilkan spesifikasi visual yang jelas dan siap diimplementasikan untuk diserahkan kepada Orchestrator.
 
