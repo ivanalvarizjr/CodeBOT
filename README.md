@@ -52,8 +52,14 @@ Run the following command to install the CodeBOT agent profiles automatically:
 
 Copy the command below and press Enter:
 
+#### for Terminal/Git Bash
 ```bash
 curl -sSL https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh | bash
+```
+
+#### for powershell
+```bash
+curl.exe -sSL https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh | bash
 ```
 
 ### Required Skills and Optional Supporting Skills

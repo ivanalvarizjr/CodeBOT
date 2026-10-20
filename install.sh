@@ -11,18 +11,33 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo -e "${CYAN}=============================================${NC}"
-echo -e "${CYAN}   CodeBOT Agents include skills Installer         ${NC}"
+echo -e "${CYAN}   CodeBOT Agents include skills Installer   ${NC}"
 echo -e "${CYAN}=============================================${NC}"
 
-echo ""
-echo "Silakan pilih ekosistem target instalasi Anda:"
-echo "[1] GitHub Copilot App"
-echo "    - Agents : ~/.copilot/agents/"
-echo "    - Skills : ~/.copilot/skills/"
-echo "[2] OpenAI Codex CLI"
-echo "    - Agents : ~/.codex/agents/"
-echo "    - Skills : ~/.codex/skills/ (serta ~/.agents/skills/)"
-read -p "Ketik 1 atau 2, lalu tekan Enter: " choice
+# --- PERBAIKAN DIMULAI DI SINI ---
+# Cek jika pengguna memberikan argumen (misal: curl ... | bash -s 1)
+choice="$1"
+
+if [ -z "$choice" ]; then
+    echo ""
+    echo "Silakan pilih ekosistem target instalasi Anda:"
+    echo "[1] GitHub Copilot App"
+    echo "    - Agents : ~/.copilot/agents/"
+    echo "    - Skills : ~/.copilot/skills/"
+    echo "[2] OpenAI Codex CLI"
+    echo "    - Agents : ~/.codex/agents/"
+    echo "    - Skills : ~/.codex/skills/ (serta ~/.agents/skills/)"
+    
+    # Cek jika skrip dijalankan via pipe (curl | bash)
+    if [ -t 0 ]; then
+        # Jika dijalankan normal (bash install.sh)
+        read -p "Ketik 1 atau 2, lalu tekan Enter: " choice
+    else
+        # Jika dijalankan via pipe, paksa baca dari terminal (/dev/tty)
+        read -p "Ketik 1 atau 2, lalu tekan Enter: " choice < /dev/tty
+    fi
+fi
+# --- PERBAIKAN SELESAI ---
 
 AGENT_DIR=""
 SKILL_DIR=""
@@ -66,7 +81,6 @@ if [ -n "$EXTRA_SKILL_DIR" ]; then
 fi
 
 # 3. Kloning repositori dengan metode --depth 1 (Sangat Cepat & Ringan)
-# JANGAN LUPA: Ganti URL di bawah dengan URL repositori asli Anda
 REPO_URL="https://github.com/ivanalvarizjr/CodeBOT.git"
 TEMP_DIR=$(mktemp -d)
 
@@ -84,10 +98,9 @@ fi
 # 5. Menyalin Skills Modul
 if [ -d "$TEMP_DIR/skills" ]; then
     echo -e "${CYAN}Menyalin modul skills ke $SKILL_DIR...${NC}"
-    # Menyalin seluruh folder skill (seperti data-analyst-manager, taste-skill, dll)
     cp -R "$TEMP_DIR/skills/"* "$SKILL_DIR/"
     
-    # Khusus Codex: Salin juga ke fallback directory lintas-agen agar 100% terbaca
+    # Khusus Codex: Salin juga ke fallback directory lintas-agen
     if [ -n "$EXTRA_SKILL_DIR" ]; then
         echo -e "${CYAN}Menyalin modul skills ke $EXTRA_SKILL_DIR...${NC}"
         cp -R "$TEMP_DIR/skills/"* "$EXTRA_SKILL_DIR/"
