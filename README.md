@@ -63,13 +63,13 @@ curl -sSL https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.s
 ##### Github Copilot App
 
 ```bash
-Invoke-RestMethod -Uri "https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh" -OutFile "install.sh"; bash ./install.sh 1; Remove-Item "install.sh"
+Invoke-RestMethod -Uri "https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh" -OutFile "install.sh"; & "C:\Program Files\Git\bin\bash.exe" ./install.sh 1; Remove-Item "install.sh"
 ```
 
 ##### Codex
 
 ```bash
-Invoke-RestMethod -Uri "https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh" -OutFile "install.sh"; bash ./install.sh 2; Remove-Item "install.sh"
+Invoke-RestMethod -Uri "https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh" -OutFile "install.sh"; & "C:\Program Files\Git\bin\bash.exe" ./install.sh 2; Remove-Item "install.sh"
 ```
 
 ### Required Skills and Optional Supporting Skills
