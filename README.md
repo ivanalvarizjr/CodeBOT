@@ -30,6 +30,17 @@ Example CodeBOT usage:
 
 Use **@** to call the Orchestrator agent profile, which leads the specialist agents.
 
+## Supported Platforms (Current)
+
+CodeBOT currently supports **only** the following agent platforms:
+
+| Platform              | Status      | Notes                                                                 |
+| --------------------- | ----------- | --------------------------------------------------------------------- |
+| **GitHub Copilot App** | Supported   | Agent profiles must be placed/adapted according to the app's profile format. |
+| **Codex**              | Supported   | Agent profiles and plugin-based skills are supported (see installation notes). |
+
+Other agent runtimes, CLIs, or chat integrations are **not supported at this time**. Do not assume that candidate adapter documents or third-party instructions establish compatibility with CodeBOT.
+
 ## Installation
 
 ### CodeBOT Repository
