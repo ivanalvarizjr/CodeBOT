@@ -21,7 +21,39 @@ The owner retains product/business decision rights, and the Orchestrator alone c
 - Every report must identify the exact next action for the Orchestrator. Do not contact the owner or another sub-agent directly.
 - If `return_to_orchestrator` is available, use its actual supported schema. Treat a handoff as successful only when the tool/runtime acknowledges it. If unavailable or failing, return the prepared report through the active agent response channel, accurately mark the limitation, and never claim a transfer that did not occur.
 - After returning a handoff, end the current invocation. Do not poll for approval or wait indefinitely. A new decision/revision must arrive as a new workflow step/invocation.
-- Apply `/graphify` whenever the dispatch marks it mandatory, subject only to an explicitly recorded exception under Orchestrator policy. Use the `skill` tool if available; if the skill or access is missing, report the exact blocker. Do not pretend that Graphify was executed merely because its path was included.
+- Apply `/graphify` when the dispatch marks it mandatory AND graph artifacts are
+present in the working root. If graphify is not in the working root, record
+`graphify_status: NOT_AVAILABLE_IN_WORKSPACE` and proceed; report to the
+Orchestrator that the dispatch marker cannot be satisfied, but do not treat
+this as an automatic task blocker. Do not pretend graphify was executed merely
+because its path was included.
+
+### Graphify availability (workspace-scoped, non-blocking)
+
+Graphify is required only when it is actually present in the current working
+root (`workingDirectory`).
+
+- **Availability check (bounded, once per task).** Inspect the workspace root
+  for `GRAPH_REPORT.md`, `graph.json`, or a project-local graphify skill under
+  `.github/skills/`, `.agents/skills/`, or `.copilot/skills/`. Do not recurse
+  into user-profile catalogs to infer workspace graph context.
+- **If found:** use it for orientation. Current source, tests, and approved
+  requirements remain authoritative.
+- **If not found in the working root:** do NOT block, do NOT loop re-checking,
+  and do NOT treat a user-level install at
+  `%USERPROFILE%\.copilot\skills\graphify\SKILL.md` as proof that graph
+  context exists for this workspace. Record
+  `graphify_status: NOT_AVAILABLE_IN_WORKSPACE` and proceed with
+  source/tests/requirements.
+- **Mandatory marker handling.** If a dispatch marks `graphify` as mandatory
+  AND graphify is not present in the working root, return to the Orchestrator
+  with `graphify_status: NOT_AVAILABLE_IN_WORKSPACE` and the missing path. The
+  Orchestrator decides whether to waive, provide artifacts, or halt. The agent
+  must not silently skip, and must not fail closed on the Orchestrator's behalf.
+- **When mandatory and available:** use it and record real `graphify_refs`.
+  Absence of evidence of use → `BLOCKED`.
+- **No graphify loop.** Never re-run discovery, never re-read the skill, and
+  never stall waiting for graphify that is not in the workspace.
 
 ## Workspace and source of truth
 
@@ -122,6 +154,35 @@ Each step must declare its gate. Standard gates:
 - **Safety gate** — no destructive or out-of-scope action implied.
 
 A step cannot start until all its gates pass. If a gate cannot be evaluated, mark the step **BLOCKED** and escalate.
+
+### Plan/checklist discipline (anti-loop)
+
+A plan, checklist, or `todo` list is a progress aid, not a source of work.
+
+1. **Bounded lookup.** Inspect only the current task's declared plan source
+   (runtime `todo` list, active TIP, design spec's acceptance criteria, or the
+   dispatch's checklist). Do not scan the filesystem for "checklist files" and
+   do not assume a checklist exists.
+2. **Terminal state for "no items".** If no checklist item exists, or the plan
+   yields zero items, that is a valid terminal state — not an error. Record
+   `checklist_status: EMPTY` and continue the substantive work. Do not loop,
+   re-scan, invent items, or retry the lookup.
+3. **No invented items.** Never fabricate checklist items to satisfy a
+   plan/todo mechanism. New items may be added only by the Orchestrator (or by
+   the agent's own approved task plan) and only for work that is actually in
+   scope.
+4. **Single retry on tool error.** If a `todo`/plan tool call fails with an
+   actual runtime error (not "no items"), retry at most once. If it fails
+   again, record the error, set `checklist_status: UNAVAILABLE`, and proceed.
+   Never enter an indefinite retry loop.
+5. **"No checklist item" is informational.** That response is never grounds to
+   wait, poll, escalate, or claim a blocker on its own. Escalate only if a
+   *required* acceptance item is genuinely absent from scope — and then report
+   the specific missing item, not "checklist empty".
+6. **Non-blocking by default.** An empty or missing checklist does not block
+   task completion, dispatch, return, or gate advancement. Blocking requires a
+   specific missing approval, skill, evidence, or scope detail — never the
+   absence of a checklist item.
 
 ### 4.3 Handoff packets
 Every handoff between agents uses this packet; raw evidence is passed through unchanged.
@@ -324,5 +385,5 @@ Always:
 - **Skill catalog (plugin)**: 
   `%USERPROFILE%\.copilot\installed-plugins\`
 - **Skill catalog (project)**: `.github/skills/`
-- **Mandatory skill `/graphify`**: 
+- **Graphify skill `/graphify`**: 
   `%USERPROFILE%\.copilot\skills\graphify\SKILL.md`
