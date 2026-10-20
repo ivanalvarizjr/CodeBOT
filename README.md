@@ -6,13 +6,13 @@ CodeBOT is a documentation and agent-profile package for human-controlled, multi
 
 The canonical profiles define five roles:
 
-| Role | Responsibilities |
-| --- | --- |
-| `orchestrator` | Clarifies scope, plans and directs tasks, coordinates specialists, checks approvals, verifies evidence, and reports results. Does not edit files or run shell commands. |
-| `data-analyst-manager` | Analyzes requirements, data, risks, evidence, and recommendations. |
-| `application-uiux-designer-manager` | Defines user requirements, UI/UX flows, visual direction, and design acceptance criteria. |
-| `software-engineer` | Investigates issues, implements approved changes, debugs and tests, and reports technical evidence. |
-| `prompt-engineer` | Prepares prompts and validated output contracts for handoff to specialists. |
+| Role                                | Responsibilities                                                                                                                                                        |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `orchestrator`                      | Clarifies scope, plans and directs tasks, coordinates specialists, checks approvals, verifies evidence, and reports results. Does not edit files or run shell commands. |
+| `data-analyst-manager`              | Analyzes requirements, data, risks, evidence, and recommendations.                                                                                                      |
+| `application-uiux-designer-manager` | Defines user requirements, UI/UX flows, visual direction, and design acceptance criteria.                                                                               |
+| `software-engineer`                 | Investigates issues, implements approved changes, debugs and tests, and reports technical evidence.                                                                     |
+| `prompt-engineer`                   | Prepares prompts and validated output contracts for handoff to specialists.                                                                                             |
 
 The profiles are available in [`profiles/canonical/`](profiles/canonical/).
 
@@ -49,7 +49,7 @@ curl -sSL https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.s
 
 **Graphify is required for work involving project structure. Agent Reach is required for internet research, web/code searches, URLs, and online platforms. Taste Skill is required as a core skill for application design.** Caveman, described below, is an optional supporting skill and is not a general prerequisite.
 
-#### Graphify — Required
+#### Graphify - Required
 
 Graphify builds a searchable knowledge graph from project code and documentation. Its official PyPI package name is **`graphifyy`** (with two `y` characters); the command name is `graphify`.
 
@@ -87,7 +87,7 @@ graphify install --project --platform codex
 
 Graphify also provides instructions for GitHub Copilot CLI and VS Code Copilot Chat. Those instructions do not establish compatibility with CodeBOT or GitHub Copilot App. See the [official Graphify installation guide](https://github.com/Graphify-Labs/graphify#install).
 
-#### Agent Reach — Required for Internet Research
+#### Agent Reach - Required for Internet Research
 
 [Agent Reach](https://github.com/Panniantong/agent-reach) is a router and readiness checker for web, GitHub, RSS, video, and other platform tools. Use this skill for online research, web/code searches, URLs, and supported platforms. Agent Reach is not a command wrapper: once a channel is available, the agent uses the appropriate upstream tool.
 
@@ -123,7 +123,7 @@ agent-reach install --env=auto --system --channels=opencli
 
 Select only the channels you need; `--channels=all` may install many tools and modify system configuration. If Homebrew Python blocks a direct installation (PEP 668), use `pipx` or a virtual environment. On Windows, if `python3` opens the Microsoft Store, use the Python Launcher `py -3` as shown above. See the [official Agent Reach installation guide](https://github.com/Panniantong/agent-reach/blob/main/docs/install.md) and [update guide](https://github.com/Panniantong/agent-reach/blob/main/docs/update.md).
 
-#### Taste Skill — Required
+#### Taste Skill - Required
 
 [Taste Skill](https://github.com/Leonxlnx/taste-skill) provides `design-taste-frontend` for interface design work. The official Agent Skills installer is available on Windows, macOS, and Linux; Node.js and npm are required:
 
@@ -140,7 +140,7 @@ codex plugin add taste-skill@taste-skill
 
 Start a new Codex session after installing the plugin. See the [official Taste Skill installation instructions](https://github.com/Leonxlnx/taste-skill#install).
 
-#### Caveman — Optional
+#### Caveman - Optional
 
 [Caveman](https://github.com/JuliusBrussee/caveman) provides agent skills and tools, including a skill for concise responses. Its official interactive installer supports Windows, macOS, and Linux. Using `npx` requires Node.js 22.13 or later:
 
@@ -166,5 +166,5 @@ These commands execute a downloaded installer script. Review the [official insta
 
 ## Repository Guide
 
-- [`profiles/canonical/`](profiles/canonical/) — canonical role profiles.
-- [`languange.md`] — the language setting for agents. Indonesian and English are currently supported. **Simply place this file in the workspace directory where the agent operates.**
+- [`profiles/canonical/`](profiles/canonical/) - canonical role profiles.
+- [`languange.md`] - the language setting for agents. Indonesian and English are currently supported. **Simply place this file in the workspace directory where the agent operates.**
