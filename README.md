@@ -195,3 +195,13 @@ These commands execute a downloaded installer script. Review the [official insta
 
 - [`profiles/canonical/`](profiles/canonical/) - canonical role profiles.
 - [`languange.md`] - the language setting for agents. Indonesian and English are currently supported. **Simply place this file in the workspace directory where the agent operates.**
+
+
+# NOTES
+
+**For `Codex`** Ensure that multi-agent support is enabled. If you are using an older version of Codex and agents are not detected, add the following configuration to your `~/.codex/config.toml` file, or launch Codex with the `--enable multi_agent` flag:
+
+```toml
+[features]
+multi_agent = true
+```
