@@ -1,58 +1,59 @@
 # CodeBOT
 
-CodeBOT adalah paket dokumentasi dan profil agen untuk alur kerja pengembangan perangkat lunak multi-agen yang dikendalikan manusia. Isinya menetapkan peran Orchestrator dan empat spesialis, dengan panduan tentang lingkup tugas, persetujuan, serah terima, dan verifikasi.
+CodeBOT is a documentation and agent-profile package for human-controlled, multi-agent software development workflows. It defines the Orchestrator role and four specialist roles, with guidance on task scope, approvals, handoffs, and verification.
 
-## Isi CodeBOT
+## What’s Included in CodeBOT
 
-Profil kanonis menetapkan lima peran:
+The canonical profiles define five roles:
 
-| Peran | Tanggung jawab |
+| Role | Responsibilities |
 | --- | --- |
-| `orchestrator` | Memperjelas lingkup, merencanakan dan mengarahkan tugas, mengoordinasikan spesialis, memeriksa persetujuan, memverifikasi bukti, dan melaporkan hasil. Tidak menyunting file atau menjalankan perintah shell. |
-| `data-analyst-manager` | Menganalisis kebutuhan, data, risiko, bukti, dan rekomendasi. |
-| `application-uiux-designer-manager` | Menentukan kebutuhan pengguna, alur UI/UX, arah visual, dan kriteria penerimaan desain. |
-| `software-engineer` | Menyelidiki, mengimplementasikan perubahan yang disetujui, melakukan debugging dan pengujian, serta melaporkan bukti teknis. |
-| `prompt-engineer` | Menyiapkan prompt dan kontrak keluaran yang tervalidasi untuk serah terima kepada spesialis. |
+| `orchestrator` | Clarifies scope, plans and directs tasks, coordinates specialists, checks approvals, verifies evidence, and reports results. Does not edit files or run shell commands. |
+| `data-analyst-manager` | Analyzes requirements, data, risks, evidence, and recommendations. |
+| `application-uiux-designer-manager` | Defines user requirements, UI/UX flows, visual direction, and design acceptance criteria. |
+| `software-engineer` | Investigates issues, implements approved changes, debugs and tests, and reports technical evidence. |
+| `prompt-engineer` | Prepares prompts and validated output contracts for handoff to specialists. |
 
-Profil tersedia di [`profiles/canonical/`](profiles/canonical/).
+The profiles are available in [`profiles/canonical/`](profiles/canonical/).
 
-## Cara menggunakan CodeBOT
+## How to Use CodeBOT
 
-**Saat ini, gunakan repositori ini sebagai referensi alur kerja dan profil yang dibaca manusia.** CodeBOT belum memiliki installer atau integrasi runtime yang didukung.
+**For now, use this repository as a human-readable reference for workflows and agent profiles.** CodeBOT does not yet have a supported installer or runtime integration.
 
-1. Clone atau unduh repositori, lalu baca profil kanonis.
-2. Untuk eksperimen dengan runtime agen, sesuaikan profil secara manual ke format yang didukung runtime tersebut. Jangan anggap dokumen adapter kandidat sebagai integrasi yang berfungsi.
-3. Ikuti alur kerja yang didokumentasikan: tetapkan lingkup dan kriteria penerimaan; arahkan tugas ke spesialis yang sesuai; minta persetujuan eksplisit sebelum tindakan yang memerlukannya; kembalikan hasil spesialis kepada Orchestrator; verifikasi perubahan dan bukti sebelum melaporkan penyelesaian.
+1. Clone or download the repository, then read the canonical profiles.
+2. To experiment with an agent runtime, manually adapt the profiles to a format supported by that runtime. Do not assume that candidate adapter documents represent a working integration.
+3. Follow the documented workflow: define the scope and acceptance criteria; assign tasks to the appropriate specialists; obtain explicit approval before actions that require it; return specialist results to the Orchestrator; and verify changes and evidence before reporting completion.
 
-contoh penggunanaan CodeBOT:
+Example CodeBOT usage:
 
->@orchestrator.agent.md redesain website portofolio saya dengan desain Soft Brutalist Editorial Tech dengan code warna DF301C, FF9100, FFF1D1, 00B7CD, namun jangan merubah isi website ini. eksekusi.
+> @orchestrator.agent.md Redesign my portfolio website using a Soft Brutalist Editorial Tech design with the color codes `DF301C`, `FF9100`, `FFF1D1`, and `00B7CD`. Do not change the website’s content. Execute.
 
-**@** digunakan untuk memanggil profile agent orchestrator sebagai leader dari agent spesialis.
+Use **@** to call the Orchestrator agent profile, which leads the specialist agents.
 
-## Instalasi
+## Installation
 
-### Repositori CodeBOT
+### CodeBOT Repository
 
-Jalankan perintah berikut untuk menginstal profil agen CodeBOT secara otomatis:
+Run the following command to install the CodeBOT agent profiles automatically:
 
-**Untuk macOS / Linux:** Buka aplikasi `Terminal`.
-**Untuk Windows:** Buka aplikasi `Git Bash`.
+**For macOS / Linux:** Open `Terminal`.
+**For Windows:** Open `Git Bash`.
 
-Kopikan perintah di bawah ini dan tekan Enter:
+Copy the command below and press Enter:
+
 ```bash
-curl -sSL [https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh](https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh) | bash
+curl -sSL https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh | bash
 ```
 
-### Skill wajib dan skill pendamping
+### Required Skills and Optional Supporting Skills
 
-**Graphify wajib untuk pekerjaan yang melibatkan struktur proyek. Agent Reach wajib untuk riset internet, pencarian web/kode, URL, dan platform online, Taste Skill wajib untuk pilar utama design aplikasi.** dan Caveman di bawah adalah skill pendamping opsional, bukan prasyarat umum.
+**Graphify is required for work involving project structure. Agent Reach is required for internet research, web/code searches, URLs, and online platforms. Taste Skill is required as a core skill for application design.** Caveman, described below, is an optional supporting skill and is not a general prerequisite.
 
-#### Graphify — wajib
+#### Graphify — Required
 
-Graphify membangun knowledge graph yang dapat ditelusuri dari kode dan dokumentasi proyek. Nama paket PyPI resminya **`graphifyy`** (dua huruf `y`); nama perintahnya `graphify`.
+Graphify builds a searchable knowledge graph from project code and documentation. Its official PyPI package name is **`graphifyy`** (with two `y` characters); the command name is `graphify`.
 
-Pasang prasyarat sesuai sistem operasi, lalu instal Graphify:
+Install the prerequisites for your operating system, then install Graphify:
 
 **Windows (PowerShell):**
 
@@ -78,21 +79,21 @@ uv tool install graphifyy
 graphify install
 ```
 
-Untuk alternatif instalasi `uv` di Ubuntu/Debian, Graphify juga mendokumentasikan `curl -LsSf https://astral.sh/uv/install.sh | sh`; setelah itu jalankan `uv tool install graphifyy`. Untuk instalasi khusus proyek Codex, gunakan:
+For an alternative way to install `uv` on Ubuntu/Debian, Graphify also documents `curl -LsSf https://astral.sh/uv/install.sh | sh`; afterward, run `uv tool install graphifyy`. For a project-specific Codex installation, use:
 
 ```bash
 graphify install --project --platform codex
 ```
 
-Graphify juga menyediakan instruksi untuk GitHub Copilot CLI dan VS Code Copilot Chat. Instruksi tersebut bukan bukti kompatibilitas CodeBOT atau GitHub Copilot App. Lihat [panduan instalasi resmi Graphify](https://github.com/Graphify-Labs/graphify#install).
+Graphify also provides instructions for GitHub Copilot CLI and VS Code Copilot Chat. Those instructions do not establish compatibility with CodeBOT or GitHub Copilot App. See the [official Graphify installation guide](https://github.com/Graphify-Labs/graphify#install).
 
-#### Agent Reach — wajib untuk riset internet
+#### Agent Reach — Required for Internet Research
 
-[Agent Reach](https://github.com/Panniantong/agent-reach) adalah router dan pemeriksa kesiapan untuk alat web, GitHub, RSS, video, serta platform lain. Gunakan skill ini untuk riset online, pencarian web/kode, URL, dan platform yang didukung. Agent Reach bukan pembungkus perintah: setelah kanal tersedia, agen memakai alat upstream yang sesuai.
+[Agent Reach](https://github.com/Panniantong/agent-reach) is a router and readiness checker for web, GitHub, RSS, video, and other platform tools. Use this skill for online research, web/code searches, URLs, and supported platforms. Agent Reach is not a command wrapper: once a channel is available, the agent uses the appropriate upstream tool.
 
-Perlu Python 3.10+. Panduan upstream merekomendasikan `pipx`; paket dipasang langsung dari repositori resmi:
+Python 3.10 or later is required. The upstream guide recommends `pipx`; the package is installed directly from the official repository:
 
-**Windows (PowerShell; metode venv resmi):**
+**Windows (PowerShell; official venv method):**
 
 ```powershell
 py -3 -m venv "$env:USERPROFILE\.agent-reach-venv"
@@ -101,53 +102,53 @@ python -m pip install https://github.com/Panniantong/agent-reach/archive/main.zi
 agent-reach install --env=auto
 ```
 
-**macOS dan Linux (pipx):**
+**macOS and Linux (pipx):**
 
 ```bash
 pipx install https://github.com/Panniantong/agent-reach/archive/main.zip
 agent-reach install --env=auto
 ```
 
-`agent-reach install --env=auto` hanya memeriksa kesiapan dan tidak mengubah sistem. Setelah instalasi, tinjau kanal yang tersedia:
+`agent-reach install --env=auto` only checks readiness and does not modify the system. After installation, review the available channels:
 
 ```bash
 agent-reach doctor --json
 ```
 
-Pemasangan dependensi sistem atau kanal opsional memerlukan persetujuan eksplisit. Setelah pengguna menyetujuinya, contoh untuk kanal OpenCLI:
+Installing system dependencies or optional channels requires explicit approval. After the user approves, an example for the OpenCLI channel is:
 
 ```bash
 agent-reach install --env=auto --system --channels=opencli
 ```
 
-Pilih kanal yang diperlukan saja; `--channels=all` dapat memasang banyak alat dan mengubah konfigurasi sistem. Jika Python Homebrew memblokir instalasi langsung (PEP 668), gunakan `pipx` atau venv. Di Windows, bila `python3` membuka Microsoft Store, gunakan Python Launcher `py -3` seperti pada contoh. Lihat [panduan instalasi resmi Agent Reach](https://github.com/Panniantong/agent-reach/blob/main/docs/install.md) dan [panduan pembaruan](https://github.com/Panniantong/agent-reach/blob/main/docs/update.md).
+Select only the channels you need; `--channels=all` may install many tools and modify system configuration. If Homebrew Python blocks a direct installation (PEP 668), use `pipx` or a virtual environment. On Windows, if `python3` opens the Microsoft Store, use the Python Launcher `py -3` as shown above. See the [official Agent Reach installation guide](https://github.com/Panniantong/agent-reach/blob/main/docs/install.md) and [update guide](https://github.com/Panniantong/agent-reach/blob/main/docs/update.md).
 
-#### Taste Skill - wajib
+#### Taste Skill — Required
 
-[Taste Skill](https://github.com/Leonxlnx/taste-skill) menyediakan `design-taste-frontend` untuk pekerjaan desain antarmuka. Installer resmi Agent Skills tersedia di Windows, macOS, dan Linux; Node.js serta npm diperlukan:
+[Taste Skill](https://github.com/Leonxlnx/taste-skill) provides `design-taste-frontend` for interface design work. The official Agent Skills installer is available on Windows, macOS, and Linux; Node.js and npm are required:
 
 ```bash
 npx skills add https://github.com/Leonxlnx/taste-skill --skill "design-taste-frontend"
 ```
 
-Skrip skill memerlukan Node.js 22+ serta Chrome, Edge, atau Chromium. Untuk Codex, repositori juga mendokumentasikan instalasi plugin:
+The skill scripts require Node.js 22 or later, as well as Chrome, Edge, or Chromium. For Codex, the repository also documents plugin installation:
 
 ```bash
 codex plugin marketplace add Leonxlnx/taste-skill
 codex plugin add taste-skill@taste-skill
 ```
 
-Mulai sesi Codex baru setelah memasang plugin. Lihat [petunjuk resmi Taste Skill](https://github.com/Leonxlnx/taste-skill#install).
+Start a new Codex session after installing the plugin. See the [official Taste Skill installation instructions](https://github.com/Leonxlnx/taste-skill#install).
 
-#### Caveman — opsional
+#### Caveman — Optional
 
-[Caveman](https://github.com/JuliusBrussee/caveman) menyediakan skill dan alat agen, termasuk skill untuk jawaban ringkas. Installer interaktif resminya mendukung Windows, macOS, dan Linux. Penggunaan `npx` memerlukan Node.js 22.13+:
+[Caveman](https://github.com/JuliusBrussee/caveman) provides agent skills and tools, including a skill for concise responses. Its official interactive installer supports Windows, macOS, and Linux. Using `npx` requires Node.js 22.13 or later:
 
 ```bash
 npx @caveman-ai/cli@latest
 ```
 
-Repositori juga menyediakan installer versi v4.0.1:
+The repository also provides an installer for version v4.0.1:
 
 **Windows (PowerShell 5.1+):**
 
@@ -155,15 +156,15 @@ Repositori juga menyediakan installer versi v4.0.1:
 irm https://raw.githubusercontent.com/JuliusBrussee/caveman/v4.0.1/install.ps1 | iex
 ```
 
-**macOS dan Linux:**
+**macOS and Linux:**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/v4.0.1/install.sh | bash
 ```
 
-Perintah tersebut menjalankan skrip installer yang diunduh. Tinjau [petunjuk instalasi resmi](https://github.com/JuliusBrussee/caveman/blob/main/INSTALL.md) sebelum menjalankannya jika ingin memeriksa skrip terlebih dahulu. Periksa repositori Caveman untuk daftar agen yang didukung dan opsi konfigurasi terbaru.
+These commands execute a downloaded installer script. Review the [official installation instructions](https://github.com/JuliusBrussee/caveman/blob/main/INSTALL.md) before running the script if you want to inspect it first. Check the Caveman repository for the list of supported agents and the latest configuration options.
 
-## Panduan repositori
+## Repository Guide
 
-- [`profiles/canonical/`](profiles/canonical/) — profil peran kanonis.
-- [`languange.md`] bahasa yang ditetapkan untuk agent, saat ini support indonesia dan english. **cukup letakan pada direktori workspace tempat agent bekerja.**
+- [`profiles/canonical/`](profiles/canonical/) — canonical role profiles.
+- [`languange.md`] — the language setting for agents. Indonesian and English are currently supported. **Simply place this file in the workspace directory where the agent operates.**
