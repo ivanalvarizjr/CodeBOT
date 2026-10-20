@@ -12,7 +12,7 @@ exclude_tmpdir_env_var = true
 network_access = true
 
 [agents]
-max_threads = 5   # Batas agen yang berjalan bersamaan[reference:9]
+max_threads = 6   # Batas agen yang berjalan bersamaan[reference:9]
 max_depth = 1     # Kedalaman maksimal pemanggilan agen bersarang[reference:10]
 
 [agents.orchestrator]
