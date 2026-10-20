@@ -26,7 +26,7 @@ The profiles are available in [`profiles/canonical/`](profiles/canonical/).
 
 Example CodeBOT usage:
 
-> @orchestrator.agent.md Redesign my portfolio website using a Soft Brutalist Editorial Tech design with the color codes `DF301C`, `FF9100`, `FFF1D1`, and `00B7CD`. Do not change the website’s content. Execute.
+> @orchestrator Redesign my portfolio website using a Soft Brutalist Editorial Tech design with the color codes `DF301C`, `FF9100`, `FFF1D1`, and `00B7CD`. Do not change the website’s content. Execute.
 
 Use **@** to call the Orchestrator agent profile, which leads the specialist agents.
 
@@ -34,10 +34,10 @@ Use **@** to call the Orchestrator agent profile, which leads the specialist age
 
 CodeBOT currently supports **only** the following agent platforms:
 
-| Platform              | Status      | Notes                                                                 |
-| --------------------- | ----------- | --------------------------------------------------------------------- |
-| **GitHub Copilot App** | Supported   | Agent profiles must be placed/adapted according to the app's profile format. |
-| **Codex**              | Supported   | Agent profiles and plugin-based skills are supported (see installation notes). |
+| Platform               | Status    | Notes                                                                          |
+| ---------------------- | --------- | ------------------------------------------------------------------------------ |
+| **GitHub Copilot App** | Supported | Agent profiles must be placed/adapted according to the app's profile format.   |
+| **Codex**              | Supported | Agent profiles and plugin-based skills are supported (see installation notes). |
 
 Other agent runtimes, CLIs, or chat integrations are **not supported at this time**. Do not assume that candidate adapter documents or third-party instructions establish compatibility with CodeBOT.
 
@@ -52,14 +52,24 @@ Run the following command to install the CodeBOT agent profiles automatically:
 
 Copy the command below and press Enter:
 
-#### for Terminal/Git Bash
+#### for Terminal/Git Bash/WSL
+
 ```bash
 curl -sSL https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh | bash
 ```
 
 #### for powershell
+
+##### Github Copilot App
+
 ```bash
-curl.exe -sSL https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh | bash
+Invoke-RestMethod -Uri "https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh" -OutFile "install.sh"; bash ./install.sh 1; Remove-Item "install.sh"
+```
+
+##### Codex
+
+```bash
+Invoke-RestMethod -Uri "https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh" -OutFile "install.sh"; bash ./install.sh 2; Remove-Item "install.sh"
 ```
 
 ### Required Skills and Optional Supporting Skills
