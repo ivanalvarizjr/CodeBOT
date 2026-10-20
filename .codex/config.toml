@@ -1,15 +1,16 @@
-# Kebijakan eksekusi perintah
-approval_policy = "on-request" # "untrusted", "on-request", "never"[reference:5]
-sandbox_mode = "workspace-write" # "read-only", "workspace-write", "danger-full-access"[reference:6]
+approval_policy = "on-request"
+default_permissions = ":workspace"
 
 [features]
 multi_agent = true # Mengaktifkan tool untuk memanggil subagent[reference:8]
-experimental_windows_sandbox = true
+prefer_mxc = true
+
+[windows]
+sandbox = "unelevated"
 
 [sandbox_workspace_write]
 exclude_slash_tmp = true
 exclude_tmpdir_env_var = true
-network_access = true
 
 [agents]
 max_threads = 6   # Batas agen yang berjalan bersamaan[reference:9]

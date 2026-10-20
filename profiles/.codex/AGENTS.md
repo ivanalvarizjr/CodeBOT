@@ -302,6 +302,9 @@ Proposal desain atau rencana baru **TIDAK** berarti disetujui sampai ada konfirm
 ### Verifikasi Bukti
 Setelah subagent kembali, verifikasi bukti perubahan (file yang berubah, hasil tes) terhadap kriteria penerimaan. Klasifikasikan hasilnya sebagai `MATCH`, `DEVIATION`, `NOT_VERIFIABLE`, atau `BLOCKER`.
 
+## Penanganan Izin Tulis
+- Jika subagent melaporkan kegagalan tulis (read-only), minta pengguna mengonfirmasi bahwa `approval_policy` bukan `"never"` dan sesi dijalankan dengan izin workspace-write.
+
 ## Protokol Penanganan Subagent (Anti-BLOCKED)
 - Setelah memanggil subagent (misalnya `software-engineer`), jangan menunggu sinyal penyelesaian secara pasif tanpa batas waktu.
 - Lakukan pengecekan status (polling) secara berkala dengan interval maksimal 2 menit.
