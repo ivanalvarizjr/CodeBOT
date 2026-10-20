@@ -1,0 +1,30 @@
+# Kebijakan eksekusi perintah
+approval_policy = "on-request" # "untrusted", "on-request", "never"[reference:5]
+sandbox_mode = "workspace-write" # "read-only", "workspace-write", "danger-full-access"[reference:6]
+
+[features]
+multi_agent = true # Mengaktifkan tool untuk memanggil subagent[reference:8]
+
+[agents]
+max_threads = 5   # Batas agen yang berjalan bersamaan[reference:9]
+max_depth = 1     # Kedalaman maksimal pemanggilan agen bersarang[reference:10]
+
+[agents.orchestrator]
+description = "Leader dan governance; mengoordinasikan empat agen spesialis."
+config_file = "agents/orchestrator.toml"
+
+[agents.data-analyst-manager]
+description = "Analisis data, pemetaan workspace, dan dukungan perencanaan chain."
+config_file = "agents/data-analyst-manager.toml"
+
+[agents.application-uiux-designer-manager]
+description = "Arah desain UI/UX dan spesifikasi visual siap implementasi."
+config_file = "agents/application-uiux-designer-manager.toml"
+
+[agents.prompt-engineer]
+description = "Optimasi prompt dan kontrak output untuk agen eksekutor."
+config_file = "agents/prompt-engineer.toml"
+
+[agents.software-engineer]
+description = "Implementasi kode dan verifikasi teknis."
+config_file = "agents/software-engineer.toml"
