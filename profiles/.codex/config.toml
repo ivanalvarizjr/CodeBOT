@@ -4,6 +4,11 @@ sandbox_mode = "workspace-write" # "read-only", "workspace-write", "danger-full-
 
 [features]
 multi_agent = true # Mengaktifkan tool untuk memanggil subagent[reference:8]
+experimental_windows_sandbox = true
+
+[sandbox_workspace_write]
+exclude_slash_tmp = true
+exclude_tmpdir_env_var = true
 
 [agents]
 max_threads = 5   # Batas agen yang berjalan bersamaan[reference:9]
