@@ -92,7 +92,7 @@ To uninstall CodeBOT from your local environment, run the appropriate command fo
 Run the following command to uninstall the CodeBOT integration for GitHub Copilot App:
 
 ```powershell
-curl.exe -sSL https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/uninstall.sh | bash -s 1
+Invoke-RestMethod -Uri "https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/uninstall.sh" -OutFile "uninstall.sh"; & "C:\Program Files\Git\bin\bash.exe" ./uninstall.sh 1; Remove-Item "uninstall.sh"
 ```
 
 ### Codex
@@ -100,7 +100,7 @@ curl.exe -sSL https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/unins
 Run the following command to uninstall the CodeBOT integration for Codex:
 
 ```powershell
-curl.exe -sSL https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/uninstall.sh | bash -s 2
+Invoke-RestMethod -Uri "https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/uninstall.sh" -OutFile "uninstall.sh"; & "C:\Program Files\Git\bin\bash.exe" ./uninstall.sh 2; Remove-Item "uninstall.sh"
 ```
 
 ### Important Notes
