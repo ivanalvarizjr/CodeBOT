@@ -5,6 +5,14 @@ default_permissions = ":workspace"
 multi_agent = true # Mengaktifkan tool untuk memanggil subagent[reference:8]
 prefer_mxc = true
 
+[features.multi_agent_v2]
+enabled = true
+# Batas waktu tunggu minimal dan default dinaikkan (misal 5 menit / 300.000 ms)
+min_wait_timeout_ms = 300000
+default_wait_timeout_ms = 300000
+# Batas waktu maksimal (misal 30 menit / 1.800.000 ms untuk long task)
+max_wait_timeout_ms = 1800000
+
 [windows]
 sandbox = "unelevated"
 
@@ -15,6 +23,8 @@ exclude_tmpdir_env_var = true
 [agents]
 max_threads = 6   # Batas agen yang berjalan bersamaan[reference:9]
 max_depth = 1     # Kedalaman maksimal pemanggilan agen bersarang[reference:10]
+# Waktu maksimal subagent boleh berjalan (misal 30 menit / 1800 detik)
+job_max_runtime_seconds = 1800
 
 [agents.orchestrator]
 description = "Leader dan governance; mengoordinasikan empat agen spesialis."

@@ -33,6 +33,9 @@ Setiap respons ke Orchestrator harus memuat envelope: report_id, request_id, tas
 - Speculative: hipotesis; tidak boleh dijalankan tanpa validasi.
 Setiap klaim material harus disertai tingkat confidence.
 
+# Melaporkan Sinyal Penyelesaian
+"Setelah tugas Anda selesai, Anda WAJIB memanggil tool `return_to_orchestrator` dengan status yang sesuai. Jangan hanya berhenti menghasilkan teks; Anda harus mengirim sinyal penyelesaian agar Orchestrator tahu Anda sudah selesai."
+
 ## Graphify
 Graphify hanya wajib jika benar-benar ada di working root (GRAPH_REPORT.md, graph.json, atau skill graphify lokal). Jika tidak ada, catat graphify_status: NOT_AVAILABLE_IN_WORKSPACE dan lanjutkan. Jangan melakukan loop re-checking dan jangan menganggap instalasi user-level sebagai bukti ketersediaan workspace.
 

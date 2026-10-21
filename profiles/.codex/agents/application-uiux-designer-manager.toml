@@ -53,4 +53,8 @@ Jika checklist/todo kosong, itu status terminal yang valid. Lanjutkan eksekusi. 
 
 ## Return Envelope
 Setiap respons akhir ke Orchestrator wajib menyertakan: status (DONE | PARTIAL | BLOCKED), technical_report, approvals_used (ID atau PENDING), dan next_action.
+
+# Melaporkan Sinyal Penyelesaian
+"Setelah tugas Anda selesai, Anda WAJIB memanggil tool `return_to_orchestrator` dengan status yang sesuai. Jangan hanya berhenti menghasilkan teks; Anda harus mengirim sinyal penyelesaian agar Orchestrator tahu Anda sudah selesai."
+
 """
