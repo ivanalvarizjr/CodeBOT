@@ -83,6 +83,33 @@ Invoke-RestMethod -Uri "https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/
 Invoke-RestMethod -Uri "https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh" -OutFile "install.sh"; & "C:\Program Files\Git\bin\bash.exe" ./install.sh 2; Remove-Item "install.sh"
 ```
 
+## Uninstalling CodeBOT
+
+To uninstall CodeBOT from your local environment, run the appropriate command for the integration you previously installed.
+
+### GitHub Copilot App
+
+Run the following command to uninstall the CodeBOT integration for GitHub Copilot App:
+
+```powershell
+curl.exe -sSL https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/uninstall.sh | bash -s 1
+```
+
+### Codex
+
+Run the following command to uninstall the CodeBOT integration for Codex:
+
+```powershell
+curl.exe -sSL https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/uninstall.sh | bash -s 2
+```
+
+### Important Notes
+
+- Select the command that matches your installed CodeBOT integration.
+- Ensure that `bash` is available in your environment before executing the command.
+- Review the uninstall script before running it to understand which local files and configurations it may remove.
+- These commands download and execute the uninstall script directly from the CodeBOT repository. Make sure you trust the source before proceeding.
+
 ### Required Skills and Optional Supporting Skills
 
 **Graphify is required for work involving project structure. Agent Reach is required for internet research, web/code searches, URLs, and online platforms. Taste Skill is required as a core skill for application design.** Caveman, described below, is an optional supporting skill and is not a general prerequisite.
