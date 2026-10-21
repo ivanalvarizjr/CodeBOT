@@ -34,9 +34,8 @@ Use **@** to call the Orchestrator agent profile, which leads the specialist age
 
 For **GitHub Copilot App**, it is recommended to invoke CodeBOT through the **dynamic workflows** mechanism. For example:
 
-```text
-@orchestrator use CodeBOT dynamic workflows to redesign my portfolio website using a Soft Brutalist Editorial Tech design with the color codes `DF301C`, `FF9100`, `FFF1D1`, and `00B7CD`. Do not change the website's content. Execute.
-```
+
+> @orchestrator use CodeBOT dynamic workflows to redesign my portfolio website using a Soft Brutalist Editorial Tech design with the color codes `DF301C`, `FF9100`, `FFF1D1`, and `00B7CD`. Do not change the website's content. Execute.
 
 Using the phrase **"use dynamic workflows to..."** is strongly recommended to help ensure reliable orchestration and proper workflow execution.
 
