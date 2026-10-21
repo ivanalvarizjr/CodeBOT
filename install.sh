@@ -121,11 +121,18 @@ merge_md_block() {
             echo -e "  ${YELLOW}[UPDATE]${NC} Aturan CodeBOT di $(basename "$target_file") diperbarui."
         fi
     else
-        echo "" >> "$target_file"
-        echo "$begin_marker" >> "$target_file"
-        cat "$source_file" >> "$target_file"
-        echo "$end_marker" >> "$target_file"
-        echo -e "  ${CYAN}[APPEND]${NC} Aturan CodeBOT ditambahkan ke $(basename "$target_file") yang sudah ada."
+        # PERBAIKAN: Cek apakah isi source_file sudah ada di dalam target_file
+        # grep -vxFf akan mengembalikan baris dari source_file yang TIDAK ada di target_file.
+        # Jika hasilnya kosong, berarti semua baris sudah ada.
+        if [ -z "$(grep -vxFf "$target_file" "$source_file" 2>/dev/null)" ]; then
+            echo -e "  ${GREEN}[SKIP]${NC} Aturan CodeBOT sudah ada di $(basename "$target_file") (tanpa marker). Duplikasi dicegah."
+        else
+            echo "" >> "$target_file"
+            echo "$begin_marker" >> "$target_file"
+            cat "$source_file" >> "$target_file"
+            echo "$end_marker" >> "$target_file"
+            echo -e "  ${CYAN}[APPEND]${NC} Aturan CodeBOT ditambahkan ke $(basename "$target_file") yang sudah ada."
+        fi
     fi
 }
 
