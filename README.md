@@ -30,6 +30,18 @@ Example CodeBOT usage:
 
 Use **@** to call the Orchestrator agent profile, which leads the specialist agents.
 
+### Recommended Usage in GitHub Copilot App
+
+For **GitHub Copilot App**, it is recommended to invoke CodeBOT through the **dynamic workflows** mechanism. For example:
+
+```text
+@orchestrator use CodeBOT dynamic workflows to redesign my portfolio website using a Soft Brutalist Editorial Tech design with the color codes `DF301C`, `FF9100`, `FFF1D1`, and `00B7CD`. Do not change the website's content. Execute.
+```
+
+Using the phrase **"use dynamic workflows to..."** is strongly recommended to help ensure reliable orchestration and proper workflow execution.
+
+During the `code` implementation phase, **Autopilot mode is highly recommended**. This helps prevent the orchestrator from falling back to a mode in which it may lack the necessary write tools, potentially disrupting implementation or causing the workflow to drift away from the intended task.
+
 ## Supported Platforms (Current)
 
 CodeBOT currently supports **only** the following agent platforms:
