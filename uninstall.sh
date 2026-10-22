@@ -63,6 +63,16 @@ TEMP_DIR=$(mktemp -d)
 echo -e "\n${CYAN}Mengambil daftar file CodeBOT dari repositori...${NC}"
 git clone --depth 1 "$REPO_URL" "$TEMP_DIR" &>/dev/null
 
+# Menentukan direktori sumber Skills di repo
+SKILL_SRC_DIR=""
+if [ -d "$TEMP_DIR/skills" ]; then
+    SKILL_SRC_DIR="$TEMP_DIR/skills"
+elif [ -d "$TEMP_DIR/.github/skills" ]; then
+    SKILL_SRC_DIR="$TEMP_DIR/.github/skills"
+elif [ -d "$TEMP_DIR/.copilot/skills" ]; then
+    SKILL_SRC_DIR="$TEMP_DIR/.copilot/skills"
+fi
+
 # ==========================================
 # UNINSTALL GITHUB COPILOT
 # ==========================================
@@ -91,9 +101,9 @@ if [ "$choice" == "1" ] || [ "$choice" == "3" ]; then
     # 3. Bersihkan copilot-instructions.md
     remove_md_block "$COPILOT_DIR/copilot-instructions.md"
 
-    # 4. Hapus Skills
-    if [ -d "$TEMP_DIR/skills" ]; then
-        for skill_path in "$TEMP_DIR/skills/"*/; do
+    # 4. Hapus Skills (Termasuk scripts/ dan references/)
+    if [ -n "$SKILL_SRC_DIR" ]; then
+        for skill_path in "$SKILL_SRC_DIR/"*/; do
             [ -d "$skill_path" ] || continue
             skill_name=$(basename "$skill_path")
             if [ -d "$COPILOT_DIR/skills/$skill_name" ]; then
@@ -132,8 +142,8 @@ if [ "$choice" == "2" ] || [ "$choice" == "3" ]; then
     fi
 
     # 4. Hapus Skills (Codex & Agents)
-    if [ -d "$TEMP_DIR/skills" ]; then
-        for skill_path in "$TEMP_DIR/skills/"*/; do
+    if [ -n "$SKILL_SRC_DIR" ]; then
+        for skill_path in "$SKILL_SRC_DIR/"*/; do
             [ -d "$skill_path" ] || continue
             skill_name=$(basename "$skill_path")
             if [ -d "$CODEX_DIR/skills/$skill_name" ]; then

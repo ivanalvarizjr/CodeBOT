@@ -121,9 +121,6 @@ merge_md_block() {
             echo -e "  ${YELLOW}[UPDATE]${NC} Aturan CodeBOT di $(basename "$target_file") diperbarui."
         fi
     else
-        # PERBAIKAN: Cek apakah isi source_file sudah ada di dalam target_file
-        # grep -vxFf akan mengembalikan baris dari source_file yang TIDAK ada di target_file.
-        # Jika hasilnya kosong, berarti semua baris sudah ada.
         if [ -z "$(grep -vxFf "$target_file" "$source_file" 2>/dev/null)" ]; then
             echo -e "  ${GREEN}[SKIP]${NC} Aturan CodeBOT sudah ada di $(basename "$target_file") (tanpa marker). Duplikasi dicegah."
         else
@@ -200,14 +197,26 @@ elif [ "$choice" == "2" ]; then
     fi
 fi
 
-# --- SKILLS (Berlaku untuk keduanya) ---
+# --- SKILLS (Pembaruan untuk mendukung struktur standar Agent Skills) ---
+# Mencari lokasi folder skills di repositori (mendukung skills/, .github/skills/, atau .copilot/skills/)
+SKILL_SRC_DIR=""
 if [ -d "$TEMP_DIR/skills" ]; then
-    echo -e "\n${CYAN}Memeriksa Modul Skills:${NC}"
-    for skill_path in "$TEMP_DIR/skills/"*/; do
+    SKILL_SRC_DIR="$TEMP_DIR/skills"
+elif [ -d "$TEMP_DIR/.github/skills" ]; then
+    SKILL_SRC_DIR="$TEMP_DIR/.github/skills"
+elif [ -d "$TEMP_DIR/.copilot/skills" ]; then
+    SKILL_SRC_DIR="$TEMP_DIR/.copilot/skills"
+fi
+
+if [ -n "$SKILL_SRC_DIR" ]; then
+    echo -e "\n${CYAN}Memeriksa Modul Skills (termasuk scripts/ dan references/):${NC}"
+    for skill_path in "$SKILL_SRC_DIR/"*/; do
         [ -d "$skill_path" ] || continue
         safe_copy_dir "$skill_path" "$SKILL_DIR"
         [ -n "$EXTRA_SKILL_DIR" ] && safe_copy_dir "$skill_path" "$EXTRA_SKILL_DIR"
     done
+else
+    echo -e "\n${YELLOW}[INFO]${NC} Tidak ada direktori skills yang ditemukan di repositori."
 fi
 
 # Pembersihan
