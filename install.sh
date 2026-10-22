@@ -197,8 +197,7 @@ elif [ "$choice" == "2" ]; then
     fi
 fi
 
-# --- SKILLS (Pembaruan untuk mendukung struktur standar Agent Skills) ---
-# Mencari lokasi folder skills di repositori (mendukung skills/, .github/skills/, atau .copilot/skills/)
+# --- SKILLS (Pembaruan: Mendukung nested skills seperti software-engineer-skills) ---
 SKILL_SRC_DIR=""
 if [ -d "$TEMP_DIR/skills" ]; then
     SKILL_SRC_DIR="$TEMP_DIR/skills"
@@ -212,8 +211,20 @@ if [ -n "$SKILL_SRC_DIR" ]; then
     echo -e "\n${CYAN}Memeriksa Modul Skills (termasuk scripts/ dan references/):${NC}"
     for skill_path in "$SKILL_SRC_DIR/"*/; do
         [ -d "$skill_path" ] || continue
-        safe_copy_dir "$skill_path" "$SKILL_DIR"
-        [ -n "$EXTRA_SKILL_DIR" ] && safe_copy_dir "$skill_path" "$EXTRA_SKILL_DIR"
+        skill_name=$(basename "$skill_path")
+        
+        # Jika menemukan folder parent software-engineer-skills, salin isi sub-folder-nya
+        if [ "$skill_name" = "software-engineer-skills" ]; then
+            for sub_skill_path in "$skill_path"/*/; do
+                [ -d "$sub_skill_path" ] || continue
+                safe_copy_dir "$sub_skill_path" "$SKILL_DIR"
+                [ -n "$EXTRA_SKILL_DIR" ] && safe_copy_dir "$sub_skill_path" "$EXTRA_SKILL_DIR"
+            done
+        else
+            # Skill standar (flat)
+            safe_copy_dir "$skill_path" "$SKILL_DIR"
+            [ -n "$EXTRA_SKILL_DIR" ] && safe_copy_dir "$skill_path" "$EXTRA_SKILL_DIR"
+        fi
     done
 else
     echo -e "\n${YELLOW}[INFO]${NC} Tidak ada direktori skills yang ditemukan di repositori."

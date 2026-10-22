@@ -46,7 +46,6 @@ remove_md_block() {
             !skip { print }
         ' "$target_file" > "${target_file}.tmp"
         
-        # Cek jika file menjadi kosong setelah dihapus, hapus filenya. Jika tidak, ganti.
         if [ -s "${target_file}.tmp" ]; then
             mv "${target_file}.tmp" "$target_file"
             echo -e "  ${GREEN}[CLEANED]${NC} Aturan CodeBOT dihapus dari $(basename "$target_file")."
@@ -57,7 +56,6 @@ remove_md_block() {
     fi
 }
 
-# Mengkloning repo sebentar untuk melihat daftar file asli CodeBOT
 REPO_URL="https://github.com/ivanalvarizjr/CodeBOT.git"
 TEMP_DIR=$(mktemp -d)
 echo -e "\n${CYAN}Mengambil daftar file CodeBOT dari repositori...${NC}"
@@ -80,7 +78,6 @@ if [ "$choice" == "1" ] || [ "$choice" == "3" ]; then
     echo -e "\n${BOLD}Memproses uninstall GitHub Copilot App...${NC}"
     COPILOT_DIR="$HOME/.copilot"
 
-    # 1. Hapus Agen
     if [ -d "$TEMP_DIR/.copilot/agents" ]; then
         for file in "$TEMP_DIR/.copilot/agents/"*.agent.md; do
             [ -e "$file" ] || continue
@@ -92,23 +89,33 @@ if [ "$choice" == "1" ] || [ "$choice" == "3" ]; then
         done
     fi
 
-    # 2. Hapus Ekstensi CodeBOT
     if [ -d "$COPILOT_DIR/extensions/CodeBOT" ]; then
         rm -rf "$COPILOT_DIR/extensions/CodeBOT"
         echo -e "  ${RED}[REMOVED]${NC} Ekstensi CodeBOT"
     fi
 
-    # 3. Bersihkan copilot-instructions.md
     remove_md_block "$COPILOT_DIR/copilot-instructions.md"
 
-    # 4. Hapus Skills (Termasuk scripts/ dan references/)
+    # 4. Hapus Skills (Mendukung nested folder software-engineer-skills)
     if [ -n "$SKILL_SRC_DIR" ]; then
         for skill_path in "$SKILL_SRC_DIR/"*/; do
             [ -d "$skill_path" ] || continue
             skill_name=$(basename "$skill_path")
-            if [ -d "$COPILOT_DIR/skills/$skill_name" ]; then
-                rm -rf "$COPILOT_DIR/skills/$skill_name"
-                echo -e "  ${RED}[REMOVED]${NC} Skill $skill_name"
+            
+            if [ "$skill_name" = "software-engineer-skills" ]; then
+                for sub_skill_path in "$skill_path"/*/; do
+                    [ -d "$sub_skill_path" ] || continue
+                    sub_skill_name=$(basename "$sub_skill_path")
+                    if [ -d "$COPILOT_DIR/skills/$sub_skill_name" ]; then
+                        rm -rf "$COPILOT_DIR/skills/$sub_skill_name"
+                        echo -e "  ${RED}[REMOVED]${NC} Skill $sub_skill_name"
+                    fi
+                done
+            else
+                if [ -d "$COPILOT_DIR/skills/$skill_name" ]; then
+                    rm -rf "$COPILOT_DIR/skills/$skill_name"
+                    echo -e "  ${RED}[REMOVED]${NC} Skill $skill_name"
+                fi
             fi
         done
     fi
@@ -121,7 +128,6 @@ if [ "$choice" == "2" ] || [ "$choice" == "3" ]; then
     echo -e "\n${BOLD}Memproses uninstall OpenAI Codex CLI...${NC}"
     CODEX_DIR="$HOME/.codex"
 
-    # 1. Hapus Agen TOML
     if [ -d "$TEMP_DIR/.codex/agents" ]; then
         for file in "$TEMP_DIR/.codex/agents/"*.toml; do
             [ -e "$file" ] || continue
@@ -133,26 +139,40 @@ if [ "$choice" == "2" ] || [ "$choice" == "3" ]; then
         done
     fi
 
-    # 2. Bersihkan AGENTS.md Global
     remove_md_block "$CODEX_DIR/AGENTS.md"
 
-    # 3. Bersihkan AGENTS.md di direktori proyek saat ini (jika ada)
     if [ -f "$(pwd)/AGENTS.md" ]; then
         remove_md_block "$(pwd)/AGENTS.md"
     fi
 
-    # 4. Hapus Skills (Codex & Agents)
+    # 4. Hapus Skills (Mendukung nested folder software-engineer-skills)
     if [ -n "$SKILL_SRC_DIR" ]; then
         for skill_path in "$SKILL_SRC_DIR/"*/; do
             [ -d "$skill_path" ] || continue
             skill_name=$(basename "$skill_path")
-            if [ -d "$CODEX_DIR/skills/$skill_name" ]; then
-                rm -rf "$CODEX_DIR/skills/$skill_name"
-                echo -e "  ${RED}[REMOVED]${NC} Skill $skill_name (Codex)"
-            fi
-            if [ -d "$HOME/.agents/skills/$skill_name" ]; then
-                rm -rf "$HOME/.agents/skills/$skill_name"
-                echo -e "  ${RED}[REMOVED]${NC} Skill $skill_name (Agents)"
+            
+            if [ "$skill_name" = "software-engineer-skills" ]; then
+                for sub_skill_path in "$skill_path"/*/; do
+                    [ -d "$sub_skill_path" ] || continue
+                    sub_skill_name=$(basename "$sub_skill_path")
+                    if [ -d "$CODEX_DIR/skills/$sub_skill_name" ]; then
+                        rm -rf "$CODEX_DIR/skills/$sub_skill_name"
+                        echo -e "  ${RED}[REMOVED]${NC} Skill $sub_skill_name (Codex)"
+                    fi
+                    if [ -d "$HOME/.agents/skills/$sub_skill_name" ]; then
+                        rm -rf "$HOME/.agents/skills/$sub_skill_name"
+                        echo -e "  ${RED}[REMOVED]${NC} Skill $sub_skill_name (Agents)"
+                    fi
+                done
+            else
+                if [ -d "$CODEX_DIR/skills/$skill_name" ]; then
+                    rm -rf "$CODEX_DIR/skills/$skill_name"
+                    echo -e "  ${RED}[REMOVED]${NC} Skill $skill_name (Codex)"
+                fi
+                if [ -d "$HOME/.agents/skills/$skill_name" ]; then
+                    rm -rf "$HOME/.agents/skills/$skill_name"
+                    echo -e "  ${RED}[REMOVED]${NC} Skill $skill_name (Agents)"
+                fi
             fi
         done
     fi
@@ -162,7 +182,6 @@ if [ "$choice" == "2" ] || [ "$choice" == "3" ]; then
     echo -e "  dan hapus bagian [agents.orchestrator] hingga [agents.software-engineer]."
 fi
 
-# Pembersihan folder temporary
 rm -rf "$TEMP_DIR"
 
 echo -e "\n${GREEN}✅ PROSES UNINSTALL SELESAI!${NC}"
