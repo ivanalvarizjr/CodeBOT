@@ -1,6 +1,6 @@
 # CodeBOT
 
-CodeBOT is a documentation and agent-profile package for human-controlled, multi-agent software development workflows. It defines the Orchestrator role and four specialist roles, with guidance on task scope, approvals, handoffs, and verification.
+CodeBOT is a semi-autonomous AI development team for human-controlled workflows. One prompt becomes an Orchestrator-led plan for your approval-then four specialist roles execute the full implementation and report every change, with clear scope, handoffs, and verification. Built for GitHub Copilot App and Codex.
 
 ## What’s Included in CodeBOT
 
