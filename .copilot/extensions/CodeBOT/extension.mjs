@@ -21,7 +21,6 @@ const PLAN_SCHEMA = {
   },
 };
 
-// STRATEGI 1: Menambahkan field `patch` untuk output diff
 const RESULT_SCHEMA = {
   type: "object",
   required: ["status", "evidence"],
@@ -38,7 +37,6 @@ const RESULT_SCHEMA = {
         },
       },
     },
-    // Field opsional khusus untuk software-engineer (Strategi 1)
     patch: {
       type: "string",
       description: "Unified diff format of changes. Required for mutative operations.",
@@ -47,23 +45,29 @@ const RESULT_SCHEMA = {
 };
 
 const FLOW_DIAGRAM = `flowchart TD
-  A([Natural-language request]) --> B[Orchestrator agent returns JSON plan]
-  B --> C{Plan valid?}
+  A([User Request]) --> B[Orchestrator Planning]
+  B --> C{Plan Valid?}
   C -- No --> X[BLOCKED]
-  C -- Yes --> D[Dispatch planned specialist roles]
-  D --> E{Acceptance criteria evidenced?}
-  E -- Yes --> R[COMPLETE]
-  E -- Partial --> S[PARTIAL]
-  E -- No --> X`;
+  C -- Yes --> D[Parallel: Analyst & UI/UX]
+  D --> E[Prompt Engineer Optimization]
+  E --> F[Software Engineer Execution]
+  F --> G{Success?}
+  G -- No, Retry < 2 --> F
+  G -- No, Retry == 2 --> H[Dynamic Re-plan: Analyst Debug]
+  H --> F
+  G -- Yes --> I[Verification]
+  I --> J[COMPLETE]`;
 
 const codebot = defineWorkflow({
   meta: {
     name: "CodeBOT",
-    description: "Natural-language CodeBOT agentic router. Provide userRequest; Orchestrator plans scope and roles.",
+    description: "Advanced agentic router with parallel execution, dynamic re-planning, and prompt injection.",
     phases: [
       { title: "Intake and planning" },
-      { title: "Orchestrator-mediated handoffs" },
-      { title: "Verification and final status" },
+      { title: "Parallel analysis and design" },
+      { title: "Prompt optimization" },
+      { title: "Implementation and re-planning" },
+      { title: "Verification" },
     ],
     argsSchema: {
       type: "object",
@@ -74,7 +78,7 @@ const codebot = defineWorkflow({
     },
     limits: {
       maxConcurrentSubagents: 3,
-      timeoutSeconds: 900,
+      timeoutSeconds: 1200, // Ditingkatkan untuk mengakomodasi re-planning
     },
   },
   run: async (ctx) => {
@@ -102,13 +106,15 @@ const codebot = defineWorkflow({
 
       const userRequest = ctx.args.userRequest.trim();
       
+      // ==========================================
+      // FASE 1: INTAKE & PLANNING
+      // ==========================================
       ctx.phase("Intake and planning");
       
-      // STRATEGI 2: Instruksi modularitas pada Orchestrator (Agnostik Framework)
       const plan = await ctx.agent(
         `You are the Orchestrator. Analyze this user request: ${JSON.stringify(userRequest)}. 
         Determine if this task requires file mutations (isMutative). 
-        CRITICAL (Token Saving): If mutative, plan for a MODULAR architecture based on the project's tech stack (e.g., separate components, services, or styles into distinct files instead of one monolithic file). Only plan a single-file architecture if explicitly requested by the user.
+        CRITICAL (Token Saving): If mutative, plan for a MODULAR architecture based on the project's tech stack.
         Select the required roles from: ${ROLES.join(", ")}. 
         Determine absolute targetPaths based on the current working directory (${process.cwd()}); use an empty array if no project path is needed. 
         Define concrete acceptanceCriteria. Return only the requested structured plan.`,
@@ -139,38 +145,38 @@ const codebot = defineWorkflow({
       }
 
       const plannedPaths = plan.targetPaths.length ? plan.targetPaths : [process.cwd()];
-
       const evidence = [];
-      
-      const dispatchRole = async (role) => {
+
+      // ==========================================
+      // FUNGSI DISPATCH UNIVERSAL
+      // ==========================================
+      const dispatchRole = async (role, customPrompt = null) => {
         if (ctx.signal.aborted) return { cancelled: true };
         
-        // STRATEGI 3: Context Pruning (Pemangkasan Konteks Spesifik)
-        let promptParts = [`Orchestrator-mediated handoff for CodeBOT run ${ctx.runId}.`, `Role: ${role}.`];
-        
-        if (role === "software-engineer") {
+        let prompt = "";
+        if (customPrompt) {
+          prompt = customPrompt;
+        } else {
+          let promptParts = [`Orchestrator-mediated handoff for CodeBOT run ${ctx.runId}.`, `Role: ${role}.`];
           promptParts.push(`User request: ${userRequest}`);
-          promptParts.push(`Target paths: ${JSON.stringify(plannedPaths)}`);
           promptParts.push(`Acceptance criteria: ${JSON.stringify(criteria)}`);
-          
-          if (plan.isMutative) {
-            // STRATEGI 1: Instruksi Patch/Diff
-            promptParts.push("This handoff is MUTATIVE. You MUST return your changes as a valid unified diff (using ```diff ... ``` format).");
-            promptParts.push("Do NOT return the full file content. Return ONLY the diff.");
-            promptParts.push("Place the diff in the `patch` field of your JSON output. Cite the file paths changed in the `evidence` array.");
-            promptParts.push("Perform only approved operations within approved paths; do not expand scope.");
+
+          if (role === "software-engineer") {
+            promptParts.push(`Target paths: ${JSON.stringify(plannedPaths)}`);
+            if (plan.isMutative) {
+              promptParts.push("This handoff is MUTATIVE.");
+              promptParts.push("INSTRUCTION: You MUST use your tools (edit/write) to APPLY the changes to the filesystem.");
+              promptParts.push("After applying, return the unified diff in the `patch` field of your JSON output.");
+            }
+          } else if (role === "prompt-engineer") {
+             promptParts.push("Optimize the instructions for the software-engineer. Return the optimized prompt in the `evidence` field.");
           } else {
             promptParts.push("This handoff is read-only. Do not create, edit, delete, execute, or delegate.");
           }
-        } else {
-          // Agen non-engineer hanya butuh request dan kriteria (tanpa targetPaths)
-          promptParts.push(`User request: ${userRequest}`);
-          promptParts.push(`Acceptance criteria: ${JSON.stringify(criteria)}`);
-          promptParts.push("This handoff is read-only. Do not create, edit, delete, execute, or delegate.");
+          
+          promptParts.push("Return JSON with status DONE/PARTIAL/BLOCKED and evidence entries {criterion,evidence}; cite concrete paths or observations.");
+          prompt = promptParts.join("\n");
         }
-        
-        promptParts.push("Return JSON with status DONE/PARTIAL/BLOCKED and evidence entries {criterion,evidence}; cite concrete paths or observations.");
-        const prompt = promptParts.join("\n");
 
         try {
           const result = await ctx.agent(prompt, { agent: role, label: `${ctx.runId}:${role}`, schema: RESULT_SCHEMA });
@@ -182,15 +188,11 @@ const codebot = defineWorkflow({
           }
           
           roleStates[role] = result.status;
-          handoffs.push({ 
-            role, 
-            status: result.status, 
-            evidence: result.evidence, 
-            patch: result.patch // Menyimpan patch ke dalam log handoff
-          });
+          const handoff = { role, status: result.status, evidence: result.evidence, patch: result.patch };
+          handoffs.push(handoff);
           evidence.push(...result.evidence);
           
-          return { failed: result.status === "BLOCKED" };
+          return { failed: result.status === "BLOCKED", handoff };
         } catch (error) {
           if (ctx.signal.aborted) return { cancelled: true };
           roleStates[role] = "BLOCKED";
@@ -199,43 +201,106 @@ const codebot = defineWorkflow({
         }
       };
 
-      ctx.phase("Orchestrator-mediated handoffs");
-      
-      for (const role of requestedRoles) {
-        if (role === "orchestrator") continue;
+      // ==========================================
+      // FASE 2: PARALLEL EXECUTION (ANALYST & UI/UX)
+      // ==========================================
+      const parallelRoles = requestedRoles.filter(r => 
+        r !== "orchestrator" && 
+        r !== "software-engineer" && 
+        r !== "prompt-engineer"
+      );
+
+      if (parallelRoles.length > 0) {
+        ctx.phase("Parallel analysis and design");
+        ctx.log(`Running parallel roles: ${parallelRoles.join(", ")}`);
+        await Promise.all(parallelRoles.map(role => dispatchRole(role)));
+      }
+
+      // ==========================================
+      // FASE 3: PROMPT ENGINEER INJECTION
+      // ==========================================
+      let optimizedPrompt = null;
+      if (requestedRoles.includes("prompt-engineer")) {
+        ctx.phase("Prompt optimization");
+        ctx.log("Running Prompt Engineer...");
+        const peResult = await dispatchRole("prompt-engineer");
         
-        // STRATEGI 4: Loop Capping (Khusus Software Engineer)
-        if (role === "software-engineer" && plan.isMutative) {
-          let attempts = 0;
-          const maxAttempts = 3;
-          let success = false;
-          
-          while (attempts < maxAttempts) {
-            attempts++;
-            ctx.log(`[Attempt ${attempts}/${maxAttempts}] Dispatching software-engineer...`);
-            
-            const outcome = await dispatchRole(role);
-            
-            if (outcome.cancelled) return final("CANCELLED", "Workflow cancelled.");
-            if (!outcome.failed) {
-              success = true;
-              break; // Keluar dari loop jika berhasil
-            }
-          }
-          
-          if (!success) {
-            return final("BLOCKED", `Software Engineer failed after ${maxAttempts} attempts. Please review the logs.`);
-          }
-          
-        } else {
-          // Agen non-mutatif atau non-engineer jalan normal (1 kali)
-          const outcome = await dispatchRole(role);
-          if (outcome.cancelled) return final("CANCELLED", "Workflow cancelled during specialist handoff.");
-          if (outcome.failed) return final("BLOCKED", `Specialist handoff failed: ${role}.`);
+        if (peResult.failed) {
+          return final("BLOCKED", "Prompt Engineer failed to optimize instructions.");
+        }
+        
+        // Ekstrak prompt yang dioptimalkan dari evidence pertama
+        if (peResult.handoff && peResult.handoff.evidence.length > 0) {
+          optimizedPrompt = peResult.handoff.evidence[0].evidence;
+          ctx.log("Optimized prompt successfully extracted from Prompt Engineer.");
         }
       }
 
-      ctx.phase("Verification and final status");
+      // ==========================================
+      // FASE 4: SOFTWARE ENGINEER (DENGAN RE-PLANNING)
+      // ==========================================
+      if (requestedRoles.includes("software-engineer")) {
+        ctx.phase("Implementation and re-planning");
+        
+        let attempts = 0;
+        const maxAttempts = 3;
+        let success = false;
+
+        while (attempts < maxAttempts) {
+          attempts++;
+          ctx.log(`[Attempt ${attempts}/${maxAttempts}] Dispatching software-engineer...`);
+          
+          // Bangun prompt untuk Engineer
+          let engPrompt = `Orchestrator-mediated handoff for CodeBOT run ${ctx.runId}.\nRole: software-engineer.\n`;
+          engPrompt += `User request: ${userRequest}\n`;
+          engPrompt += `Acceptance criteria: ${JSON.stringify(criteria)}\n`;
+          engPrompt += `Target paths: ${JSON.stringify(plannedPaths)}\n`;
+          
+          if (optimizedPrompt) {
+            engPrompt += `\nOPTIMIZED INSTRUCTIONS FROM PROMPT ENGINEER:\n${optimizedPrompt}\n`;
+          }
+
+          if (plan.isMutative) {
+            engPrompt += "\nThis handoff is MUTATIVE. You MUST use your tools (edit/write) to APPLY the changes to the filesystem.";
+            engPrompt += "\nAfter applying, return the unified diff in the `patch` field.";
+          }
+
+          const outcome = await dispatchRole("software-engineer", engPrompt);
+          
+          if (outcome.cancelled) return final("CANCELLED", "Workflow cancelled.");
+          if (!outcome.failed) {
+            success = true;
+            break; 
+          }
+
+          // DYNAMIC RE-PLANNING: Jika gagal di percobaan ke-2
+          if (attempts === 2) {
+            ctx.log("Engineer failed twice. Initiating Dynamic Re-planning: calling Data Analyst for debugging...");
+            
+            const debugPrompt = `Orchestrator-mediated handoff for CodeBOT run ${ctx.runId}.\nRole: data-analyst-manager.\n` +
+              `User request: ${userRequest}\n` +
+              `The software-engineer failed to implement the changes. Investigate the workspace and logs to find out why it failed. ` +
+              `Provide actionable debugging steps or context for the engineer to succeed on the next try.`;
+            
+            const debugResult = await dispatchRole("data-analyst-manager", debugPrompt);
+            
+            if (debugResult.handoff && debugResult.handoff.evidence.length > 0) {
+              // Suntikkan hasil debugging ke prompt percobaan ke-3
+              optimizedPrompt = (optimizedPrompt || "") + `\n\nDEBUG CONTEXT FROM ANALYST:\n${debugResult.handoff.evidence[0].evidence}`;
+              ctx.log("Injecting debugging context for final attempt.");
+            }
+          }
+        }
+
+        if (!success) {
+          return final("BLOCKED", `Software Engineer failed after ${maxAttempts} attempts.`);
+        }
+      }
+
+      // ==========================================
+      // FASE 5: VERIFICATION
+      // ==========================================
+      ctx.phase("Verification");
       const verifiedCriteria = new Set(evidence.filter((item) => item && typeof item.criterion === "string" && typeof item.evidence === "string" && item.evidence.trim()).map((item) => item.criterion));
       const missing = criteria.filter((criterion) => !verifiedCriteria.has(criterion));
       
@@ -258,9 +323,10 @@ const session = await joinSession({
     path.join(os.homedir(), ".copilot", "skills")
   ],
   tools: [
+    // ... (Definisi tools codebot_resume & codebot_cancel tetap sama persis)
     {
       name: "codebot_resume",
-      description: "Resume a paused CodeBOT run. Resuming is not technical approval; a matching owner approval must have been submitted separately.",
+      description: "Resume a paused CodeBOT run.",
       parameters: {
         type: "object",
         required: ["runId"],
@@ -277,7 +343,7 @@ const session = await joinSession({
     },
     {
       name: "codebot_cancel",
-      description: "Cancel a CodeBOT workflow run. Cancellation does not approve any proposal or authorize mutations.",
+      description: "Cancel a CodeBOT workflow run.",
       parameters: {
         type: "object",
         required: ["runId"],
