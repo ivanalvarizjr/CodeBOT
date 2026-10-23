@@ -96,7 +96,7 @@ if [ "$choice" == "1" ] || [ "$choice" == "3" ]; then
 
     remove_md_block "$COPILOT_DIR/copilot-instructions.md"
 
-    # 4. Hapus Skills (Mendukung nested folder software-engineer-skills)
+    # 4. Hapus Skills (Mendukung nested folder)
     if [ -n "$SKILL_SRC_DIR" ]; then
         for skill_path in "$SKILL_SRC_DIR/"*/; do
             [ -d "$skill_path" ] || continue
@@ -112,9 +112,11 @@ if [ "$choice" == "1" ] || [ "$choice" == "3" ]; then
                     fi
                 done
             else
+                # Handling skill standar (flat), termasuk prompt-engineer-skill dan references/
+                # rm -rf akan menghapus folder beserta isinya secara rekursif
                 if [ -d "$COPILOT_DIR/skills/$skill_name" ]; then
                     rm -rf "$COPILOT_DIR/skills/$skill_name"
-                    echo -e "  ${RED}[REMOVED]${NC} Skill $skill_name"
+                    echo -e "  ${RED}[REMOVED]${NC} Skill $skill_name (beserta references/scripts)"
                 fi
             fi
         done
@@ -145,7 +147,7 @@ if [ "$choice" == "2" ] || [ "$choice" == "3" ]; then
         remove_md_block "$(pwd)/AGENTS.md"
     fi
 
-    # 4. Hapus Skills (Mendukung nested folder software-engineer-skills)
+    # 4. Hapus Skills (Mendukung nested folder)
     if [ -n "$SKILL_SRC_DIR" ]; then
         for skill_path in "$SKILL_SRC_DIR/"*/; do
             [ -d "$skill_path" ] || continue
@@ -165,6 +167,7 @@ if [ "$choice" == "2" ] || [ "$choice" == "3" ]; then
                     fi
                 done
             else
+                # Handling skill standar (flat)
                 if [ -d "$CODEX_DIR/skills/$skill_name" ]; then
                     rm -rf "$CODEX_DIR/skills/$skill_name"
                     echo -e "  ${RED}[REMOVED]${NC} Skill $skill_name (Codex)"
