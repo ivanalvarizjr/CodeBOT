@@ -15,7 +15,7 @@ Sebelum menggunakan tool `read`, `edit`, `write`, atau `grep` pada file source/c
 
 ## 2. Registry Subagent Spesialis & Modularitas
 
-Gunakan mekanisme `handoffs` atau pemanggilan subagent di dalam Copilot Chat. Rujuk pada file `.agent.md` di `.github/agents/` untuk spesifikasi peran mereka.
+Gunakan mekanisme `handoffs` atau pemanggilan subagent di dalam Copilot Chat. Rujuk pada file `.agent.md` di `.copilot/agents/` untuk spesifikasi peran mereka.
 
 | Agen | Domain Tugas |
 | :--- | :--- |
@@ -26,37 +26,42 @@ Gunakan mekanisme `handoffs` atau pemanggilan subagent di dalam Copilot Chat. Ru
 
 **Aturan Routing & Modularitas (Strategi Penghematan Token):**
 - **Pre-flight:** Jika path file target belum jelas, panggil `data-analyst-manager` terlebih dahulu.
-- **Design-Intent:** Jika ada keyword UI/UX yang dipadukan dengan konteks aplikasi, rute utama adalah `application-uiux-designer-manager`.
+- **Design-Intent:** Jika ada keyword UI/UX yang dipadukan dengan konteks aplikasi, rute utama adalah `application-uiux-designer-manager`. **WAJIB** sertakan path/URL gambar (jika ada) agar agen dapat menganalisis visual.
 - **Modularitas Wajib (Agnostik):** Saat merencanakan tugas mutasi (`isMutative: true`), **DILARANG** langsung merencanakan satu file besar/monolitik. Anda **WAJIB** memecah `targetPaths` menjadi file-file modular yang logis sesuai *tech stack* proyek (misal: memisahkan komponen, *services*, *models*, atau *styles* ke file terpisah). Penggabungan (bundling) hanya boleh dilakukan di tahap akhir jika diminta eksplisit oleh pengguna.
 
 ---
 
-## 3. Protokol Delegasi & Efisiensi Konteks
+## 3. Protokol Delegasi & Efisiensi Konteks (Design Propagation)
 
 ### A. Pemangkasan Konteks (Context Pruning)
 Saat memanggil subagent, **JANGAN** kirimkan seluruh riwayat percakapan atau file yang tidak relevan. Berikan konteks yang terisolasi dan spesifik hanya untuk peran tersebut:
-- **`software-engineer`**: Kirimkan `userRequest`, `targetPaths`, dan `acceptanceCriteria` saja.
-- **Agen selain Engineer**: Kirimkan `userRequest` dan `acceptanceCriteria`. **DILARANG** menyertakan `targetPaths` yang tidak relevan agar agen tidak membaca file yang tidak perlu.
+- **`application-uiux-designer-manager`**: Kirimkan `userRequest`, `acceptanceCriteria`, dan `visual_context` (path gambar/screenshot). **DILARANG** menyertakan `targetPaths` kode.
+- **`software-engineer`**: Kirimkan `userRequest`, `targetPaths`, `acceptanceCriteria`, `visual_context`, dan **`design_skill_refs`** (yang Anda terima dari UI/UX). **DILARANG** menyertakan target/riwayat non-teknis.
+- **Agen selain Engineer & Designer**: Kirimkan `userRequest` dan `acceptanceCriteria` saja.
 
-### B. Format Output Mutasi (Patch/Diff)
+### B. Instruksi Output Mutasi (Patch/Diff & Design Enforcement)
 - Untuk tugas mutasi (fitur/bugfix), Anda **WAJIB** menginstruksikan `software-engineer` untuk **hanya mengembalikan format `unified diff` (patch)**.
-- **DILARANG** meminta agen menulis ulang seluruh isi file (kecuali jika file tersebut memang baru dibuat dari nol).
-- Instruksi wajib ke Engineer: *"Return ONLY the unified diff in the `patch` field. Do not return the full file content."*
+- **DILARANG** meminta agen menulis ulang seluruh isi file (kecuali file baru dari nol).
+- Instruksi wajib ke Engineer: *"Return ONLY the unified diff in the `patch` field. Terapkan panduan desain dari `design_skill_refs` ini: [sebutkan skill_refs dari UI/UX]."*
 
-### C. Penanganan Agen "Malas" & Batas Iterasi (Loop Capping)
+### C. Design Skill Propagation (UI/UX ➔ Engineer)
+1. Saat memanggil `application-uiux-designer-manager`, **WAJIB** memintanya mengembalikan `design_skill_refs` (misal: `soft-brutalist`, `web-design-guidelines`).
+2. Saat memanggil `software-engineer`, **WAJIB** meneruskan `design_skill_refs` tersebut agar Engineer menerapkan gaya visual yang persis sama dengan yang disetujui oleh UI/UX.
+
+### D. Penanganan Agen "Malas" & Batas Iterasi (Loop Capping)
 Jika subagent kembali dengan laporan **tanpa perubahan file fisik** atau status `PARTIAL` padahal spesifikasi sudah jelas:
 1. **JANGAN** melapor ke pengguna.
 2. **SEGERA** panggil ulang subagent tersebut dengan instruksi tegas.
-3. **Batas Iterasi Maksimal:** Lakukan *Auto-Retry* maksimal **3 kali**. Jika setelah 3 kali percobaan agen tetap gagal atau tidak menghasilkan patch yang valid, **HENTIKAN PROSES** dan laporkan status `BLOCKED` kepada pengguna dengan error yang sebenarnya. Jangan terjebak dalam loop tanpa akhir.
+3. **Batas Iterasi Maksimal:** Lakukan *Auto-Retry* maksimal **3 kali**. Jika setelah 3 kali percobaan agen tetap gagal atau tidak menghasilkan patch yang valid, **HENTIKAN PROSES** dan laporkan status `BLOCKED` kepada pengguna dengan error yang sebenarnya.
 
 ---
 
 ## 4. Konteks Proyek & Workspace
 
 ### Struktur Direktori Kunci
-- **`.github/agents/`**: Berisi definisi agen kustom (`.agent.md`).
-- **`.github/copilot-instructions.md`**: Instruksi kustom tingkat repositori.
-- **`.github/skills/`** atau **`~/.copilot/skills/`**: Katalog skill otomatis.
+- **`.copilot/agents/`**: Berisi definisi agen kustom (`.agent.md`).
+- **`.copilot/copilot-instructions.md`**: Instruksi kustom tingkat repositori.
+- **`.github/skills/`** atau **`~/.copilot/skills/`** atau **`~/.agents/skills/`**: Katalog skill otomatis.
 
 ### Integrasi Skill & Graphify
 - **Skill**: Copilot memuat skill secara otomatis. Minta subagent mencatat skill yang mereka gunakan (`skill_refs`).

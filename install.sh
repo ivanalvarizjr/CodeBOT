@@ -197,7 +197,7 @@ elif [ "$choice" == "2" ]; then
     fi
 fi
 
-# --- SKILLS (Pembaruan: Mendukung nested skills seperti software-engineer-skills) ---
+# --- SKILLS (Mendukung nested skills dan sub-folder references/scripts) ---
 SKILL_SRC_DIR=""
 if [ -d "$TEMP_DIR/skills" ]; then
     SKILL_SRC_DIR="$TEMP_DIR/skills"
@@ -208,12 +208,12 @@ elif [ -d "$TEMP_DIR/.copilot/skills" ]; then
 fi
 
 if [ -n "$SKILL_SRC_DIR" ]; then
-    echo -e "\n${CYAN}Memeriksa Modul Skills (termasuk scripts/ dan references/):${NC}"
+    echo -e "\n${CYAN}Memeriksa Modul Skills (termasuk references/ dan scripts/):${NC}"
     for skill_path in "$SKILL_SRC_DIR/"*/; do
         [ -d "$skill_path" ] || continue
         skill_name=$(basename "$skill_path")
         
-        # Jika menemukan folder parent software-engineer-skills, salin isi sub-folder-nya
+        # Handling khusus untuk folder parent software-engineer-skills
         if [ "$skill_name" = "software-engineer-skills" ]; then
             for sub_skill_path in "$skill_path"/*/; do
                 [ -d "$sub_skill_path" ] || continue
@@ -221,7 +221,8 @@ if [ -n "$SKILL_SRC_DIR" ]; then
                 [ -n "$EXTRA_SKILL_DIR" ] && safe_copy_dir "$sub_skill_path" "$EXTRA_SKILL_DIR"
             done
         else
-            # Skill standar (flat)
+            # Skill standar (flat), termasuk prompt-engineer-skill dan references/ di dalamnya
+            # safe_copy_dir otomatis menyalin seluruh isi folder secara rekursif (-R)
             safe_copy_dir "$skill_path" "$SKILL_DIR"
             [ -n "$EXTRA_SKILL_DIR" ] && safe_copy_dir "$skill_path" "$EXTRA_SKILL_DIR"
         fi
