@@ -112,8 +112,8 @@ if [ "$choice" == "1" ] || [ "$choice" == "3" ]; then
                     fi
                 done
             else
-                # Handling skill standar (flat), termasuk prompt-engineer-skill dan references/
-                # rm -rf akan menghapus folder beserta isinya secara rekursif
+                # Handling skill standar (flat), termasuk prompt-engineer-skill dan software-engineer-debugging.
+                # rm -rf akan menghapus folder beserta isinya secara rekursif (references/ dan scripts/).
                 if [ -d "$COPILOT_DIR/skills/$skill_name" ]; then
                     rm -rf "$COPILOT_DIR/skills/$skill_name"
                     echo -e "  ${RED}[REMOVED]${NC} Skill $skill_name (beserta references/scripts)"
@@ -167,7 +167,8 @@ if [ "$choice" == "2" ] || [ "$choice" == "3" ]; then
                     fi
                 done
             else
-                # Handling skill standar (flat)
+                # Handling skill standar (flat), termasuk prompt-engineer-skill dan software-engineer-debugging.
+                # rm -rf menghapus seluruh direktori beserta file di dalamnya.
                 if [ -d "$CODEX_DIR/skills/$skill_name" ]; then
                     rm -rf "$CODEX_DIR/skills/$skill_name"
                     echo -e "  ${RED}[REMOVED]${NC} Skill $skill_name (Codex)"

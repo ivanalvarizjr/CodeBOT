@@ -213,7 +213,7 @@ if [ -n "$SKILL_SRC_DIR" ]; then
         [ -d "$skill_path" ] || continue
         skill_name=$(basename "$skill_path")
         
-        # Handling khusus untuk folder parent software-engineer-skills
+        # Handling khusus untuk folder parent software-engineer-skills (flattening sub-skills)
         if [ "$skill_name" = "software-engineer-skills" ]; then
             for sub_skill_path in "$skill_path"/*/; do
                 [ -d "$sub_skill_path" ] || continue
@@ -221,8 +221,8 @@ if [ -n "$SKILL_SRC_DIR" ]; then
                 [ -n "$EXTRA_SKILL_DIR" ] && safe_copy_dir "$sub_skill_path" "$EXTRA_SKILL_DIR"
             done
         else
-            # Skill standar (flat), termasuk prompt-engineer-skill dan references/ di dalamnya
-            # safe_copy_dir otomatis menyalin seluruh isi folder secara rekursif (-R)
+            # Handling skill standar (flat) seperti prompt-engineer-skill, software-engineer-debugging, dll.
+            # safe_copy_dir menyalin folder beserta isi references/ dan scripts/ secara rekursif (-R)
             safe_copy_dir "$skill_path" "$SKILL_DIR"
             [ -n "$EXTRA_SKILL_DIR" ] && safe_copy_dir "$skill_path" "$EXTRA_SKILL_DIR"
         fi
