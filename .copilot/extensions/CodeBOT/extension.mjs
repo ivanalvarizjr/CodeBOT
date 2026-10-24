@@ -169,7 +169,7 @@ const codebot = defineWorkflow({
               promptParts.push("After applying, return the unified diff in the `patch` field of your JSON output.");
             }
           } else if (role === "prompt-engineer") {
-             promptParts.push("Optimize the instructions for the software-engineer. Return the optimized prompt in the `evidence` field.");
+            promptParts.push("Optimize the instructions for the software-engineer. Return the optimized prompt in the `evidence` field.");
           } else {
             promptParts.push("This handoff is read-only. Do not create, edit, delete, execute, or delegate.");
           }
@@ -188,7 +188,15 @@ const codebot = defineWorkflow({
           }
           
           roleStates[role] = result.status;
-          const handoff = { role, status: result.status, evidence: result.evidence, patch: result.patch };
+          
+          // PERBAIKAN BUG: Menggunakan spread operator untuk mencegah 'undefined' pada 'patch'
+          const handoff = { 
+            role, 
+            status: result.status, 
+            evidence: result.evidence,
+            ...(result.patch !== undefined && { patch: result.patch })
+          };
+          
           handoffs.push(handoff);
           evidence.push(...result.evidence);
           
@@ -323,7 +331,6 @@ const session = await joinSession({
     path.join(os.homedir(), ".copilot", "skills")
   ],
   tools: [
-    // ... (Definisi tools codebot_resume & codebot_cancel tetap sama persis)
     {
       name: "codebot_resume",
       description: "Resume a paused CodeBOT run.",
