@@ -142,3 +142,7 @@ if __name__ == "__main__":
 **Flutter Debugging Guide**: https://docs.flutter.dev/testing/debugging
 **Systematic Debug Skill (cc-enforcer)**: https://github.com/skymanbp/cc-enforcer/blob/main/skills/systematic-debug/SKILL.md
 **Mobile Debugging Reference**: https://github.com/kumaran-is/claude-code-onboarding/blob/develop/.claude/skills/mobile-design/reference/mobile-debugging.md
+
+### di dalam folder induk skill ini.
+**scripts/parse_stacktrace.py**: Tool internal untuk mengekstrak file:line dan pesan error dari stack trace Flutter.
+**references/**: referensi tambahan untuk debugging, termasuk common error patterns, platform spesifik, dan tools and setup guides.

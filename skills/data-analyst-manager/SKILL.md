@@ -117,3 +117,6 @@ Rekomendasi: Tambahkan `data.get('user_id')` dan fallback ke `customer_id`.
 - **Agentic Code Reasoning**: Premise → Trace → Refutation → Conclusion 
 - **DeskCheck Framework**: Simulasi execution path untuk lokalisasi root cause 
 - **Multi-Agent Critique**: Critic agents mendeteksi error yang tidak terlihat oleh Orchestrator 
+
+### di dalam folder induk skill ini.
+- **scripts/trace_deps.py**: Tool internal untuk path tracing dan dependensi. Gunakan `--depth` untuk mengatur level pencarian.

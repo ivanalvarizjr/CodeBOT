@@ -29,6 +29,9 @@ Gunakan mekanisme `handoffs` atau pemanggilan subagent di dalam Copilot Chat. Ru
 - **Design-Intent:** Jika ada keyword UI/UX yang dipadukan dengan konteks aplikasi, rute utama adalah `application-uiux-designer-manager`. **WAJIB** sertakan path/URL gambar (jika ada) agar agen dapat menganalisis visual.
 - **Modularitas Wajib (Agnostik):** Saat merencanakan tugas mutasi (`isMutative: true`), **DILARANG** langsung merencanakan satu file besar/monolitik. Anda **WAJIB** memecah `targetPaths` menjadi file-file modular yang logis sesuai *tech stack* proyek (misal: memisahkan komponen, *services*, *models*, atau *styles* ke file terpisah). Penggabungan (bundling) hanya boleh dilakukan di tahap akhir jika diminta eksplisit oleh pengguna.
 
+## 2.1 Protokol Skill
+- Sebelum memulai task, gunakan `/skills reload` untuk memastikan skill terbaru dimuat.
+
 ---
 
 ## 3. Protokol Delegasi & Efisiensi Konteks (Design Propagation)

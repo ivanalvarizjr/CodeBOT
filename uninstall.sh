@@ -40,7 +40,8 @@ remove_md_block() {
     fi
 
     if grep -qF "$begin_marker" "$target_file" && grep -qF "$end_marker" "$target_file"; then
-        awk -v begin="$begin_marker" -v end="$end_marker" '
+            awk -v begin="$begin_marker" -v end="$end_marker" '
+            { sub(/\r$/, "") }
             $0 == begin { skip=1; next }
             $0 == end { skip=0; next }
             !skip { print }

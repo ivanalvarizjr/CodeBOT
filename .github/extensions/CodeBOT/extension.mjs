@@ -1,7 +1,51 @@
 import { defineWorkflow, joinSession } from "@github/copilot-sdk/extension";
 import os from "node:os";
 import path from "node:path";
+import fs from "node:fs";
 
+// ==========================================
+// 1. CUSTOM SKILL PROVIDER
+// ==========================================
+const SKILL_DIRS = [
+  path.join(os.homedir(), ".agents", "skills"),
+  path.join(os.homedir(), ".copilot", "skills")
+];
+
+const skillProvider = {
+  listSkills: () => {
+    const skills = [];
+    for (const dir of SKILL_DIRS) {
+      if (!fs.existsSync(dir)) continue;
+      const folders = fs.readdirSync(dir);
+      for (const folder of folders) {
+        const skillPath = path.join(dir, folder, "SKILL.md");
+        if (fs.existsSync(skillPath)) {
+          const content = fs.readFileSync(skillPath, "utf-8");
+          const descMatch = content.match(/description:\s*(.+)/);
+          skills.push({
+            name: folder,
+            description: descMatch ? descMatch[1].trim() : "Custom skill",
+            directory: path.join(dir, folder) 
+          });
+        }
+      }
+    }
+    return skills;
+  },
+  readSkill: (name) => {
+    for (const dir of SKILL_DIRS) {
+      const skillPath = path.join(dir, name, "SKILL.md");
+      if (fs.existsSync(skillPath)) {
+        return fs.readFileSync(skillPath, "utf-8");
+      }
+    }
+    return null;
+  }
+};
+
+// ==========================================
+// 2. SCHEMAS & CONSTANTS
+// ==========================================
 const ROLES = [
   "orchestrator",
   "data-analyst-manager",
@@ -58,6 +102,9 @@ const FLOW_DIAGRAM = `flowchart TD
   G -- Yes --> I[Verification]
   I --> J[COMPLETE]`;
 
+// ==========================================
+// 3. WORKFLOW DEFINITION
+// ==========================================
 const codebot = defineWorkflow({
   meta: {
     name: "CodeBOT",
@@ -78,7 +125,7 @@ const codebot = defineWorkflow({
     },
     limits: {
       maxConcurrentSubagents: 3,
-      timeoutSeconds: 1200, // Ditingkatkan untuk mengakomodasi re-planning
+      timeoutSeconds: 1200,
     },
   },
   run: async (ctx) => {
@@ -106,9 +153,7 @@ const codebot = defineWorkflow({
 
       const userRequest = ctx.args.userRequest.trim();
       
-      // ==========================================
       // FASE 1: INTAKE & PLANNING
-      // ==========================================
       ctx.phase("Intake and planning");
       
       const plan = await ctx.agent(
@@ -147,9 +192,7 @@ const codebot = defineWorkflow({
       const plannedPaths = plan.targetPaths.length ? plan.targetPaths : [process.cwd()];
       const evidence = [];
 
-      // ==========================================
       // FUNGSI DISPATCH UNIVERSAL
-      // ==========================================
       const dispatchRole = async (role, customPrompt = null) => {
         if (ctx.signal.aborted) return { cancelled: true };
         
@@ -189,7 +232,7 @@ const codebot = defineWorkflow({
           
           roleStates[role] = result.status;
           
-          // PERBAIKAN BUG: Menggunakan spread operator untuk mencegah 'undefined' pada 'patch'
+          // Mencegah 'undefined' pada 'patch'
           const handoff = { 
             role, 
             status: result.status, 
@@ -209,9 +252,7 @@ const codebot = defineWorkflow({
         }
       };
 
-      // ==========================================
       // FASE 2: PARALLEL EXECUTION (ANALYST & UI/UX)
-      // ==========================================
       const parallelRoles = requestedRoles.filter(r => 
         r !== "orchestrator" && 
         r !== "software-engineer" && 
@@ -224,9 +265,7 @@ const codebot = defineWorkflow({
         await Promise.all(parallelRoles.map(role => dispatchRole(role)));
       }
 
-      // ==========================================
       // FASE 3: PROMPT ENGINEER INJECTION
-      // ==========================================
       let optimizedPrompt = null;
       if (requestedRoles.includes("prompt-engineer")) {
         ctx.phase("Prompt optimization");
@@ -237,16 +276,13 @@ const codebot = defineWorkflow({
           return final("BLOCKED", "Prompt Engineer failed to optimize instructions.");
         }
         
-        // Ekstrak prompt yang dioptimalkan dari evidence pertama
         if (peResult.handoff && peResult.handoff.evidence.length > 0) {
           optimizedPrompt = peResult.handoff.evidence[0].evidence;
           ctx.log("Optimized prompt successfully extracted from Prompt Engineer.");
         }
       }
 
-      // ==========================================
       // FASE 4: SOFTWARE ENGINEER (DENGAN RE-PLANNING)
-      // ==========================================
       if (requestedRoles.includes("software-engineer")) {
         ctx.phase("Implementation and re-planning");
         
@@ -258,7 +294,6 @@ const codebot = defineWorkflow({
           attempts++;
           ctx.log(`[Attempt ${attempts}/${maxAttempts}] Dispatching software-engineer...`);
           
-          // Bangun prompt untuk Engineer
           let engPrompt = `Orchestrator-mediated handoff for CodeBOT run ${ctx.runId}.\nRole: software-engineer.\n`;
           engPrompt += `User request: ${userRequest}\n`;
           engPrompt += `Acceptance criteria: ${JSON.stringify(criteria)}\n`;
@@ -281,7 +316,7 @@ const codebot = defineWorkflow({
             break; 
           }
 
-          // DYNAMIC RE-PLANNING: Jika gagal di percobaan ke-2
+          // DYNAMIC RE-PLANNING
           if (attempts === 2) {
             ctx.log("Engineer failed twice. Initiating Dynamic Re-planning: calling Data Analyst for debugging...");
             
@@ -293,7 +328,6 @@ const codebot = defineWorkflow({
             const debugResult = await dispatchRole("data-analyst-manager", debugPrompt);
             
             if (debugResult.handoff && debugResult.handoff.evidence.length > 0) {
-              // Suntikkan hasil debugging ke prompt percobaan ke-3
               optimizedPrompt = (optimizedPrompt || "") + `\n\nDEBUG CONTEXT FROM ANALYST:\n${debugResult.handoff.evidence[0].evidence}`;
               ctx.log("Injecting debugging context for final attempt.");
             }
@@ -305,9 +339,7 @@ const codebot = defineWorkflow({
         }
       }
 
-      // ==========================================
       // FASE 5: VERIFICATION
-      // ==========================================
       ctx.phase("Verification");
       const verifiedCriteria = new Set(evidence.filter((item) => item && typeof item.criterion === "string" && typeof item.evidence === "string" && item.evidence.trim()).map((item) => item.criterion));
       const missing = criteria.filter((criterion) => !verifiedCriteria.has(criterion));
@@ -324,9 +356,14 @@ const codebot = defineWorkflow({
   },
 });
 
+// ==========================================
+// 4. SESSION INITIALIZATION
+// ==========================================
 const session = await joinSession({
   workflows: [codebot],
-  skillDirectories: [
+  enableSkills: true,               // Memaksa runtime untuk memuat skills
+  skillProvider: skillProvider,     // <-- PERBAIKAN: Mendaftarkan custom provider di sini
+  skillDirectories: [               // Tetap dipertahankan sebagai fallback standar
     path.join(os.homedir(), ".agents", "skills"),
     path.join(os.homedir(), ".copilot", "skills")
   ],

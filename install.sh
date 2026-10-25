@@ -99,37 +99,59 @@ merge_md_block() {
     local end_marker="<!-- END CODEBOT ORCHESTRATOR -->"
 
     if [ ! -f "$target_file" ]; then
-        echo "$begin_marker" > "$target_file"
-        cat "$source_file" >> "$target_file"
-        echo "$end_marker" >> "$target_file"
+        {
+            echo "$begin_marker"
+            cat "$source_file"
+            echo "$end_marker"
+        } > "$target_file"
         echo -e "  ${CYAN}[NEW]${NC} $(basename "$target_file") dibuat dengan aturan CodeBOT."
         return 0
     fi
 
+    # Cek apakah kedua marker ada
     if grep -qF "$begin_marker" "$target_file" && grep -qF "$end_marker" "$target_file"; then
-        local existing_block=$(awk -v begin="$begin_marker" -v end="$end_marker" '$0 == begin {flag=1; next} $0 == end {flag=0} flag' "$target_file")
-        local new_block=$(cat "$source_file")
+        local tmp_file="${target_file}.tmp"
         
-        if [ "$existing_block" == "$new_block" ]; then
-            echo -e "  ${GREEN}[SKIP]${NC} Aturan CodeBOT di $(basename "$target_file") sudah versi terbaru."
+        # Menggunakan awk dengan pembersihan \r (CRLF) agar aman di Windows
+        awk -v begin="$begin_marker" -v end="$end_marker" -v src="$source_file" '
+            { sub(/\r$/, "") }
+            $0 == begin { print; while ((getline line < src) > 0) print line; skip=1; next }
+            $0 == end { skip=0 }
+            !skip { print }
+        ' "$target_file" > "$tmp_file"
+
+        # Validasi: pastikan file sementara tidak kosong
+        if [ -s "$tmp_file" ]; then
+            if cmp -s "$target_file" "$tmp_file"; then
+                echo -e "  ${GREEN}[SKIP]${NC} Aturan CodeBOT di $(basename "$target_file") sudah versi terbaru."
+                rm -f "$tmp_file"
+            else
+                mv "$tmp_file" "$target_file"
+                echo -e "  ${YELLOW}[UPDATE]${NC} Aturan CodeBOT di $(basename "$target_file") diperbarui."
+            fi
         else
-            awk -v begin="$begin_marker" -v end="$end_marker" -v src="$source_file" '
-                $0 == begin { print; while ((getline line < src) > 0) print line; skip=1; next }
-                $0 == end { skip=0 }
-                !skip { print }
-            ' "$target_file" > "${target_file}.tmp" && mv "${target_file}.tmp" "$target_file"
-            echo -e "  ${YELLOW}[UPDATE]${NC} Aturan CodeBOT di $(basename "$target_file") diperbarui."
+            echo -e "  ${RED}[ERROR]${NC} Gagal memperbarui blok CodeBOT di $(basename "$target_file"). File asli dipertahankan."
+            rm -f "$tmp_file"
         fi
     else
-        if [ -z "$(grep -vxFf "$target_file" "$source_file" 2>/dev/null)" ]; then
+        # Jika marker tidak ada, gunakan append aman (abaikan \r untuk pengecekan duplikasi)
+        local target_clean=$(mktemp)
+        local source_clean=$(mktemp)
+        tr -d '\r' < "$target_file" > "$target_clean"
+        tr -d '\r' < "$source_file" > "$source_clean"
+        
+        if [ -z "$(grep -vxFf "$target_clean" "$source_clean" 2>/dev/null)" ]; then
             echo -e "  ${GREEN}[SKIP]${NC} Aturan CodeBOT sudah ada di $(basename "$target_file") (tanpa marker). Duplikasi dicegah."
         else
-            echo "" >> "$target_file"
-            echo "$begin_marker" >> "$target_file"
-            cat "$source_file" >> "$target_file"
-            echo "$end_marker" >> "$target_file"
+            {
+                echo ""
+                echo "$begin_marker"
+                cat "$source_file"
+                echo "$end_marker"
+            } >> "$target_file"
             echo -e "  ${CYAN}[APPEND]${NC} Aturan CodeBOT ditambahkan ke $(basename "$target_file") yang sudah ada."
         fi
+        rm -f "$target_clean" "$source_clean"
     fi
 }
 
@@ -221,8 +243,7 @@ if [ -n "$SKILL_SRC_DIR" ]; then
                 [ -n "$EXTRA_SKILL_DIR" ] && safe_copy_dir "$sub_skill_path" "$EXTRA_SKILL_DIR"
             done
         else
-            # Handling skill standar (flat) seperti prompt-engineer-skill, software-engineer-debugging, dll.
-            # safe_copy_dir menyalin folder beserta isi references/ dan scripts/ secara rekursif (-R)
+            # Handling skill standar (flat)
             safe_copy_dir "$skill_path" "$SKILL_DIR"
             [ -n "$EXTRA_SKILL_DIR" ] && safe_copy_dir "$skill_path" "$EXTRA_SKILL_DIR"
         fi

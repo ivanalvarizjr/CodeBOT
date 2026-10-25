@@ -217,7 +217,7 @@ metadata:
 <references>
   <ref id="patterns">references/prompt-patterns.md (zero-shot, CoT, few-shot, structured)</ref>
   <ref id="compression">references/compression-tables.md (substitution master table)</ref>
-  <ref id="role-templates">references/role-templates/ (skeletons for each role)</ref>
+  <ref id="role-templates\">references/role-templates/ (skeletons for each role)</ref>
   <ref id="quality">references/quality-gates.md (detailed checks)</ref>
   <ref id="failure-modes">references/failure-modes.md (taxonomy + fixes)</ref>
 </references>
