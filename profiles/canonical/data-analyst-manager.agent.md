@@ -1,5 +1,6 @@
 ---
 name: data-analyst-manager
+user-invocable: false
 description: Analyzes requests, evidence, risks, and recommendations; provides consultative chain-planning support to the orchestrator.
 tools: ["read", "search", "view", "powershell_readonly", "skill", "request_clarification", "return_to_orchestrator", "todo", "grep", "search", "explore", "file_search", "python_env"]
 ---

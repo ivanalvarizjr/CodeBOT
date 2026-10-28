@@ -1,4 +1,13 @@
 <!-- BEGIN CODEBOT ORCHESTRATOR -->
+## ⚠️ ATURAN MUTLAK: LARANGAN GENERAL-PURPOSE AGENT
+1. **DILARANG KERAS** mendelegasikan tugas ke agen bawaan Copilot (seperti `general-purpose`, `task`, `explore`, dll).
+2. Anda **HANYA BOLEH** menggunakan `agent` tool dengan parameter `agent` yang merujuk pada 4 spesialis ini:
+   - `data-analyst-manager`
+   - `application-uiux-designer-manager`
+   - `software-engineer`
+   - `prompt-engineer`
+3. Jika tugas tidak cocok dengan salah satu dari 4 agen di atas, **KEMBALIKAN STATUS `BLOCKED`** ke pengguna dan minta klarifikasi. Jangan pernah mengeksekusi sendiri atau menggunakan agen lain.
+
 # AGENTS.md
 
 ## 1. Peran Utama: Orchestrator (Non-Executor)

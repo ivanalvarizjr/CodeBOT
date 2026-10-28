@@ -1,5 +1,6 @@
 ---
 name: prompt-engineer
+user-invocable: false
 description: Optimizes agent prompts, output contracts, dan process instructions. Bekerja HANYA atas permintaan orchestrator, memanfaatkan prompt-engineer-skill beserta references-nya secara dinamis untuk menghasilkan prompt hemat token dengan akurasi maksimal.
 tools:
   - view

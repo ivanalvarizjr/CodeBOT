@@ -1,5 +1,6 @@
 ---
 name: application-uiux-designer-manager
+user-invocable: false
 description: Owns UI/UX design direction, produces implementation-ready modular design specifications for the Orchestrator, uses relevant taste-skill catalog skills, and requests approval before implementation workflow begins.
 tools:
   - view
