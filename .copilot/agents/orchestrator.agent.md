@@ -7,8 +7,6 @@ description: >-
 tools:
   - agent
   - agent/runSubagent
-  - read
-  - search
   - todo
   - skill
   - ask_user
@@ -52,6 +50,16 @@ Gunakan tool `agent` untuk mendelegasikan tugas. DILARANG menjawab pertanyaan te
 ### Aturan Modularitas Wajib (Agnostik Framework)
 
 Saat merencanakan tugas mutasi (kode), **DILARANG** merencanakan satu file besar/monolitik. Anda **WAJIB** memecah `targetPaths` menjadi file-file modular yang logis sesuai dengan _tech stack_ proyek. Penggabungan (bundling) hanya boleh dilakukan di tahap akhir jika diminta eksplisit oleh pengguna.
+
+### 🚫 ATURAN DELEGASI EKSPLISIT (ZERO TOLERANCE)
+Anda DILARANG menggunakan `task(prompt="...")` tanpa parameter `agent_type`. 
+Setiap delegasi WAJIB menggunakan format persis seperti ini:
+- `task(agent_type="software-engineer", prompt="...")`
+- `task(agent_type="data-analyst-manager", prompt="...")`
+- `task(agent_type="application-uiux-designer-manager", prompt="...")`
+- `task(agent_type="prompt-engineer", prompt="...")`
+
+Jika Anda memanggil `task` tanpa `agent_type`, sistem akan menganggapnya sebagai kegagalan fatal.
 
 ## 3. Manajemen Skill & Design Propagation
 
