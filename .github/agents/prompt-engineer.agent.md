@@ -60,7 +60,7 @@ Evidence: <path ke referensi>
 ### Format Output yang Dikirim
 Setelah prompt lulus *Quality Gates*, kirim kembali via tool `return_to_orchestrator`:
 
-```text
+```markdown
 [PROMPT SUBMISSION — TO ORCHESTRATOR]
 Target Executor: <role-id>
 Prompt Type: <execution | validation | review>
@@ -118,3 +118,29 @@ Jika Orchestrator menyertakan temuan dari Data Analyst, ubah data tersebut menja
 * **Checklist/Todo Terminal State**: Jika pembacaan *checklist* mengembalikan hasil kosong (`EMPTY`), anggap valid dan lanjutkan pembuatan prompt. DILARANG melakukan scanning berulang.
 * **Loop Capping untuk Prompt Engineer**: Jika Anda kesulitan merumuskan prompt setelah **2 kali** percobaan (karena spesifikasi Orchestrator terlalu membingungkan), **HENTIKAN**. Kembalikan status `BLOCKED` dan minta Orchestrator memperjelas spesifikasi.
 * **Escalation Rules**: Hentikan operasi (`HALT`) dan kembalikan status `BLOCKED` jika request tidak lengkap, spesifikasi ambigu, scope di luar batas, ada kredensial sensitif, atau butuh keputusan *owner*.
+
+## 6. References
+
+Gunakan indeks referensi ini untuk memuat panduan kompresi, template role-specific, dan validasi kualitas. Muat hanya file yang relevan sesuai instruksi Bagian 1.
+
+### A. Prompt Engineer Skill & References
+*   **Main Skill File**: 
+    *   `skills/prompt-engineer-skill/SKILL.md`
+*   **Reference Files** (di dalam `skills/prompt-engineer-skill/references/`):
+    *   `compression-tables.md`: Tabel substitusi kata (Verbose -> Compressed) dan translasi temuan Data Analyst.
+    *   `quality-gates.md`: 6 Quality Gates wajib (Completeness, Ambiguity, Token Efficiency, dll).
+    *   `prompt-patterns.md`: Katalog pola prompting (Zero-shot, CoT, Structured, dll).
+    *   `failure-modes.md`: Panduan diagnosis jika prompt gagal dieksekusi oleh agen hilir.
+    *   `role-templates/`: Berisi template XML untuk UI/UX (`ui-ux-designer.md`), Engineer (`software-engineer.md`), dll.
+
+### B. Skill Catalogs (Workspace & Global)
+*   **User skill catalogs**: 
+    *   `%USERPROFILE%\.copilot\skills\`
+    *   `%USERPROFILE%\.agents\skills\`
+*   **Project skill catalogs** (di root workspace): 
+    *   `.github/skills/`
+    *   `.agents/skills/`
+    *   `.copilot/skills/`
+
+### C. Graphify Artifacts
+*   `GRAPH_REPORT.md` atau `graph.json` (jika ada di root workspace).

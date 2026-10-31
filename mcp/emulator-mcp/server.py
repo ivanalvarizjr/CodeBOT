@@ -179,5 +179,31 @@ def get_logcat(lines: int = 100, filter_tag: str = "") -> str:
         return f"❌ Gagal mengambil log: {err}"
     return f"📋 Log terakhir:\n\n{out}"
 
+@mcp.tool()
+def get_current_activity() -> str:
+    """Mengecek nama package/aplikasi yang sedang terbuka di emulator. 
+    Sangat berguna untuk memastikan aplikasi sudah terbuka sebelum mengambil screenshot."""
+    code, out, err = run_adb(["shell", "dumpsys", "window", "windows", "|", "grep", "mCurrentFocus"])
+    if code != 0:
+        return f"Error: {err}"
+    return f"Aplikasi saat ini: {out.strip()}"
+
+@mcp.tool()
+def launch_app(package_name: str) -> str:
+    """Membuka aplikasi berdasarkan package name (contoh: 'com.example.pastel_wallet').
+    Gunakan ini jika emulator masih berada di Home Screen."""
+    # Menggunakan monkey untuk meluncurkan launcher activity
+    code, out, err = run_adb(["shell", "monkey", "-p", package_name, "-c", "android.intent.category.LAUNCHER", "1"])
+    if code == 0:
+        return f"✅ Aplikasi {package_name} berhasil diluncurkan. Tunggu 2-3 detik sebelum mengambil screenshot."
+    return f"❌ Gagal membuka aplikasi: {err}"
+
+@mcp.tool()
+def wait_seconds(seconds: int = 10) -> str:
+    """Menunggu selama X detik agar animasi/loading selesai sebelum melakukan screenshot atau tap."""
+    import time
+    time.sleep(seconds)
+    return f"✅ Menunggu {seconds} detik selesai."
+
 if __name__ == "__main__":
     mcp.run(transport="stdio")

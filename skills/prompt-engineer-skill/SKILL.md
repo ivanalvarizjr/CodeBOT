@@ -1,22 +1,3 @@
----
-name: prompt-engineer-skill
-description: >
-  Layer kompresi yang mengubah direktif strategis menjadi instruksi eksekusi
-  minimal-token, siap-pakai, dan terverifikasi untuk 4 target utama:
-  Orchestrator, User, UI/UX Manager, dan Data Analyst Manager.
-  Gunakan saat menerima [DISPATCH REQUEST] dari Orchestrator atau saat perlu
-  menghasilkan prompt untuk agen hilir.
-user-invocable: true
-disable-model-invocation: false
-argument-hint: /prompt-engineer
-metadata:
-  version: "2.0.0"
-  category: meta-agent
-  hierarchy_position: "orchestrator > data-analyst > prompt-engineer > ui-ux-designer | software-engineer"
-  token_budget: minimal
-  output_artifact: ".prompt.md"
----
-
 # SKILL.md — Prompt Engineer Agent (v2.0)
 
 <identity>
