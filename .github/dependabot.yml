@@ -1,0 +1,34 @@
+# .github/dependabot.yml
+version: 2
+updates:
+  # Memantau dependensi NPM (package.json & package-lock.json)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly" # Cek pembaruan setiap minggu
+      day: "monday"
+    open-pull-requests-limit: 10
+    # Mengelompokkan pembaruan agar tidak terlalu banyak PR
+    groups:
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      dev-dependencies:
+        dependency-type: "development"
+        patterns:
+          - "@types/*"
+          - "eslint*"
+          - "prettier*"
+    labels:
+      - "dependencies"
+      - "dependabot"
+
+  # Memantau versi GitHub Actions (jika Anda menggunakan CI/CD)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "github-actions"
+      - "dependabot"
