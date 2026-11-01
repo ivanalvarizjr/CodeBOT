@@ -1,0 +1,19 @@
+{
+  "name": "codebott",
+  "version": "1.2.0",
+  "description": "Cross-platform AI multi-agent orchestration harness for GitHub Copilot and OpenAI Codex.",
+  "type": "module",
+  "bin": {
+    "codebott": "bin/codebot.js"
+  },
+  "files": [
+    "bin/",
+    "install.sh",
+    "uninstall.sh",
+    ".copilot/",
+    ".codex/",
+    "skills/"
+  ],
+  "author": "Ivan Alvarizjr",
+  "license": "MIT"
+}

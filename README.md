@@ -52,63 +52,88 @@ CodeBOT currently supports **only** the following agent platforms:
 
 Other agent runtimes, CLIs, or chat integrations are **not supported at this time**. Do not assume that candidate adapter documents or third-party instructions establish compatibility with CodeBOT.
 
+Tentu, ini adalah draf `README.md` yang sudah diperbarui. Saya telah memasukkan metode instalasi **NPM (Node Package Manager)** sebagai metode utama karena jauh lebih praktis dan profesional, sambil tetap mempertahankan metode skrip mentah (`curl`/PowerShell) sebagai alternatif jika pengguna tidak memiliki Node.js.
+
+Silakan salin dan tempel teks di bawah ini ke dalam file `README.md` Anda sebelum melakukan *push* ke repositori:
+
+---
+
 ## Installation
 
-### CodeBOT Repository
+You can install CodeBOT using **NPM (Recommended)** or via the **Direct Script**.
 
-Run the following command to install the CodeBOT agent profiles automatically:
+### Method 1: NPM (Recommended)
+If you have Node.js (v18+) installed, you can install and run CodeBOT globally.
 
-**For macOS / Linux:** Open `Terminal`.
-**For Windows:** Open `Git Bash`.
+```bash
+npm install -g codebott
+```
 
-Copy the command below and press Enter:
+To start the interactive installer, run:
+```bash
+codebott
+```
 
-#### for Terminal/Git Bash/WSL
+Or, skip the menu by passing the target ecosystem directly:
+*   **GitHub Copilot App:** `codebott 1`
+*   **OpenAI Codex CLI:** `codebott 2`
 
+*(Alternatively, you can use `npx codebott` without a global installation).*
+
+### Method 2: Direct Script (Curl / PowerShell)
+If you prefer not to use NPM, you can execute the installer script directly.
+
+**For macOS / Linux / WSL / Git Bash:**
 ```bash
 curl -sSL https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh | bash
 ```
 
-#### for powershell
-
-##### Github Copilot App
-
-```bash
+**For Windows PowerShell:**
+*GitHub Copilot App:*
+```powershell
 Invoke-RestMethod -Uri "https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh" -OutFile "install.sh"; & "C:\Program Files\Git\bin\bash.exe" ./install.sh 1; Remove-Item "install.sh"
 ```
-
-##### Codex
-
-```bash
+*OpenAI Codex CLI:*
+```powershell
 Invoke-RestMethod -Uri "https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/install.sh" -OutFile "install.sh"; & "C:\Program Files\Git\bin\bash.exe" ./install.sh 2; Remove-Item "install.sh"
 ```
 
+---
+
 ## Uninstalling CodeBOT
 
-To uninstall CodeBOT from your local environment, run the appropriate command for the integration you previously installed.
+### Method 1: NPM Uninstall
+If you installed CodeBOT via NPM, you can easily clean up the agent profiles, skills, and instructions by running the uninstaller wrapper:
 
-### GitHub Copilot App
+```bash
+codebott uninstall
+```
+*(You can also pass `1` for Copilot, `2` for Codex, or `3` for both).*
 
-Run the following command to uninstall the CodeBOT integration for GitHub Copilot App:
+After cleaning up the local configurations, you can remove the NPM package itself:
+```bash
+npm uninstall -g codebott
+```
 
+### Method 2: Direct Script Uninstall
+If you installed via the direct script, run the appropriate command to remove the integration.
+
+**GitHub Copilot App:**
 ```powershell
 Invoke-RestMethod -Uri "https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/uninstall.sh" -OutFile "uninstall.sh"; & "C:\Program Files\Git\bin\bash.exe" ./uninstall.sh 1; Remove-Item "uninstall.sh"
 ```
 
-### Codex
-
-Run the following command to uninstall the CodeBOT integration for Codex:
-
+**OpenAI Codex CLI:**
 ```powershell
 Invoke-RestMethod -Uri "https://raw.githubusercontent.com/ivanalvarizjr/CodeBOT/main/uninstall.sh" -OutFile "uninstall.sh"; & "C:\Program Files\Git\bin\bash.exe" ./uninstall.sh 2; Remove-Item "uninstall.sh"
 ```
 
-### Important Notes
+---
 
-- Select the command that matches your installed CodeBOT integration.
-- Ensure that `bash` is available in your environment before executing the command.
-- Review the uninstall script before running it to understand which local files and configurations it may remove.
-- These commands download and execute the uninstall script directly from the CodeBOT repository. Make sure you trust the source before proceeding.
+### Important Notes
+*   **Safe Updates:** CodeBOT uses an "update-safe" mechanism. Existing configurations (like `config.toml` or `copilot-instructions.md`) will not be overwritten; backups are created automatically.
+*   **Requirements:** If using the Direct Script method on Windows, ensure **Git Bash** is installed. 
+*   **Review:** Always review the installation scripts before running them to understand which local files and configurations they will modify.
 
 ### Required Skills and Optional Supporting Skills
 
