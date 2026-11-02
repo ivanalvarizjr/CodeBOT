@@ -9,56 +9,76 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = join(__dirname, "..");
 
-// Fungsi deteksi Git Bash untuk Windows
-function getShellCommand() {
+function getShellCommandAndArgs(scriptName, args) {
+  const scriptPath = join(rootDir, scriptName);
+
   if (process.platform === "win32") {
-    const possibleBashPaths = [
+    // 1. Coba cari Git Bash di lokasi default
+    const bashPaths = [
       "C:\\Program Files\\Git\\bin\\bash.exe",
       "C:\\Program Files (x86)\\Git\\bin\\bash.exe",
-      "bash", 
     ];
-    for (const path of possibleBashPaths) {
-      if (existsSync(path)) return path;
+    for (const path of bashPaths) {
+      if (existsSync(path)) {
+        return { cmd: path, args: [scriptPath, ...args] };
+      }
     }
-    return "bash";
+
+    // 2. Coba cari 'bash' di PATH
+    const bashCheck = spawnSync("bash", ["-c", "echo ok"], { shell: true });
+    if (bashCheck.status === 0) {
+      return { cmd: "bash", args: [scriptPath, ...args] };
+    }
+
+    // 3. Fallback ke WSL jika Git Bash benar-benar tidak ada
+    console.log("⚠️  Git Bash tidak ditemukan. Mencoba menggunakan WSL...");
+    const wslCheck = spawnSync("wsl", ["--status"], { shell: true });
+    if (wslCheck.status === 0) {
+      // Konversi path Windows (D:\...) ke format WSL (/mnt/d/...)
+      const wslScriptPath = scriptPath
+        .replace(/\\/g, "/")
+        .replace(
+          /^([A-Za-z]):/,
+          (match, drive) => `/mnt/${drive.toLowerCase()}`,
+        );
+      return { cmd: "wsl", args: ["bash", wslScriptPath, ...args] };
+    }
+
+    // 4. Jika semuanya gagal
+    console.error("❌ ERROR: Git Bash atau WSL tidak ditemukan.");
+    console.error(
+      "Silakan instal Git for Windows (https://git-scm.com/download/win) terlebih dahulu.",
+    );
+    process.exit(1);
   }
-  return "bash"; // Linux / macOS
+
+  // Linux / macOS
+  return { cmd: "bash", args: [scriptPath, ...args] };
 }
 
-function executeScript(scriptName, args) {
-  const bashCmd = getShellCommand();
-  const scriptPath = join(rootDir, scriptName);
+function main() {
+  const userArgs = process.argv.slice(2);
+  const isUninstall = userArgs[0] === "uninstall";
+
+  const scriptName = isUninstall ? "uninstall.sh" : "install.sh";
+  const scriptArgs = isUninstall ? userArgs.slice(1) : userArgs;
 
   console.log(`\n🚀 Menjalankan ${scriptName}...\n`);
 
-  const result = spawnSync(bashCmd, [scriptPath, ...args], {
+  const { cmd, args } = getShellCommandAndArgs(scriptName, scriptArgs);
+
+  const result = spawnSync(cmd, args, {
     stdio: "inherit",
     cwd: rootDir,
   });
 
   if (result.error) {
-    console.error(`❌ Gagal menjalankan ${scriptName}: ${result.error.message}`);
+    console.error(`❌ Gagal: ${result.error.message}`);
     process.exit(1);
   }
-
   if (result.status !== 0) {
-    console.error(`❌ Proses berhenti dengan kode: ${result.status}`);
     process.exit(result.status);
   }
-
-  console.log(`\n✅ Proses ${scriptName} selesai!`);
 }
 
-// --- LOGIKA UTAMA ---
-const userArgs = process.argv.slice(2);
-const isUninstall = userArgs[0] === "uninstall";
-
-if (isUninstall) {
-  // Jika user mengetik "codebot uninstall", buang kata "uninstall" dari argumen
-  // agar argumen berikutnya (misal: 1, 2, atau 3) diteruskan ke uninstall.sh
-  const uninstallArgs = userArgs.slice(1);
-  executeScript("uninstall.sh", uninstallArgs);
-} else {
-  // Jika user hanya mengetik "codebot" atau "codebot 1", jalankan installer
-  executeScript("install.sh", userArgs);
-}
+main();
