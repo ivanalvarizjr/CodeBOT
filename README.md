@@ -1,6 +1,5 @@
 <div align="center">
-  <img src="CodeBOT_typografi.png" alt="CodeBOT Typographi" width="200" />
-  <h1>CodeBOT</h1>
+  <img src="CodeBOT_typografi.png" alt="CodeBOT Typographi" width="400" />
   <p>Advanced Multi-Agent Orchestration Harness</p>
 </div>
 
