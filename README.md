@@ -1,4 +1,8 @@
-# CodeBOT
+<div align="center">
+  <img src="D:\apps\CodeBOT\CodeBOT_typografi.png" alt="CodeBOT Typographi" width="200" />
+  <h1>CodeBOT</h1>
+  <p>Advanced Multi-Agent Orchestration Harness</p>
+</div>
 
 CodeBOT is a semi-autonomous AI development team for human-controlled workflows. One prompt becomes an Orchestrator-led plan for your approval-then four specialist roles execute the full implementation and report every change, with clear scope, handoffs, and verification. Built for GitHub Copilot App and Codex.
 
