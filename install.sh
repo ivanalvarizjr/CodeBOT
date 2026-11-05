@@ -227,7 +227,7 @@ elif [ "$choice" == "2" ]; then
     fi
 
     if [ -f "$TEMP_DIR/.codex/AGENTS.md" ]; then
-        if [ "$(pwd)" = "$HOME" ]; then
+        if [ "$(pwd)" = "$HOME" ] || [[ "$(pwd)" == *"node_modules"* ]]; then
             TARGET_AGENTS_MD="$HOME/.codex/AGENTS.md"
             echo -e "\n${CYAN}Terdeteksi instalasi dari direktori global ($HOME).${NC}"
         else

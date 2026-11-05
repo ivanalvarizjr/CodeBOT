@@ -146,7 +146,7 @@ if [ "$choice" == "2" ] || [ "$choice" == "3" ]; then
 
     remove_md_block "$CODEX_DIR/AGENTS.md"
 
-    if [ -f "$(pwd)/AGENTS.md" ]; then
+    if [ -f "$(pwd)/AGENTS.md" ] && [[ "$(pwd)" != *"node_modules"* ]]; then
         remove_md_block "$(pwd)/AGENTS.md"
     fi
 

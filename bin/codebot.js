@@ -67,9 +67,9 @@ function main() {
 
   const { cmd, args } = getShellCommandAndArgs(scriptName, scriptArgs);
 
-  const result = spawnSync(cmd, args, {
+  const result = spawnSync(bashCmd, [installScript, ...args], {
     stdio: "inherit",
-    cwd: rootDir,
+    cwd: process.cwd(),
   });
 
   if (result.error) {
