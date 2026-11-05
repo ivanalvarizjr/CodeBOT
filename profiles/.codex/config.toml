@@ -11,37 +11,31 @@ enabled = true
 min_wait_timeout_ms = 300000
 default_wait_timeout_ms = 300000
 # Batas waktu maksimal (misal 30 menit / 1.800.000 ms untuk long task)
-max_wait_timeout_ms = 1800000
+max_wait_timeout_ms = 3600000
 
 [windows]
 sandbox = "unelevated"
 
-[sandbox_workspace_write]
-exclude_slash_tmp = true
-exclude_tmpdir_env_var = true
-
 [agents]
-max_threads = 6   # Batas agen yang berjalan bersamaan[reference:9]
-max_depth = 1     # Kedalaman maksimal pemanggilan agen bersarang[reference:10]
-# Waktu maksimal subagent boleh berjalan (misal 30 menit / 1800 detik)
-job_max_runtime_seconds = 1800
+max_concurrent_threads_per_session = 6
+max_depth = 1
 
 [agents.orchestrator]
 description = "Leader dan governance; mengoordinasikan empat agen spesialis."
-config_file = "agents/orchestrator.toml"
+config_file = "~/.codex/agents/orchestrator.toml"
 
 [agents.data-analyst-manager]
 description = "Analisis data, pemetaan workspace, dan dukungan perencanaan chain."
-config_file = "agents/data-analyst-manager.toml"
+config_file = "~/.codex/agents/data-analyst-manager.toml"
 
 [agents.application-uiux-designer-manager]
 description = "Arah desain UI/UX dan spesifikasi visual siap implementasi."
-config_file = "agents/application-uiux-designer-manager.toml"
+config_file = "~/.codex/agents/application-uiux-designer-manager.toml"
 
 [agents.prompt-engineer]
 description = "Optimasi prompt dan kontrak output untuk agen eksekutor."
-config_file = "agents/prompt-engineer.toml"
+config_file = "~/.codex/agents/prompt-engineer.toml"
 
 [agents.software-engineer]
 description = "Implementasi kode dan verifikasi teknis."
-config_file = "agents/software-engineer.toml"
+config_file = "~/.codex/agents/software-engineer.toml"

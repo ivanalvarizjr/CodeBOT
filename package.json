@@ -1,8 +1,9 @@
 {
   "name": "codebott",
-  "version": "1.2.3",
+  "version": "1.2.6",
   "description": "Cross-platform AI multi-agent orchestration harness for GitHub Copilot and OpenAI Codex.",
   "type": "module",
+  "main": "bin/codebot.js",
   "bin": {
     "codebott": "bin/codebot.js"
   },
@@ -13,8 +14,51 @@
     ".copilot/",
     ".codex/",
     "skills/",
-    "CodeBOT_typografi.png"
+    "CodeBOT_typografi.png",
+    "README.md"
+  ],
+  "scripts": {
+    "start": "node bin/codebot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ivanalvarizjr/CodeBOT.git"
+  },
+  "keywords": [
+    "front-end",
+    "back-end",
+    "ai",
+    "ai-agents",
+    "agentic-workflow",
+    "github-copilot",
+    "openai-codex",
+    "orchestration",
+    "harness",
+    "llm",
+    "cli",
+    "copilot",
+    "codex",
+    "multi-agent",
+    "cross-platform",
+    "workflow",
+    "automation",
+    "productivity",
+    "software-development",
+    "programming",
+    "code-generation",
+    "code-assistant",
+    "code-review",
+    "code-automation",
+    "code-refactoring",
+    "code-testing"
   ],
   "author": "Ivan Alvarizjr",
-  "license": "MIT"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ivanalvarizjr/CodeBOT/issues"
+  },
+  "homepage": "https://github.com/ivanalvarizjr/CodeBOT#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
