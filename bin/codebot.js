@@ -5,7 +5,7 @@ import { existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { PostHog } from 'posthog-node';
-import dotenv from 'dotenv';
+import dotenv from 'dotenv'; // PERBAIKAN 1: Import dotenv
 import os from 'node:os';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -22,14 +22,17 @@ const posthogApiKey = process.env.POSTHOG_API_KEY || 'phc_kWvYUyqeyEeMwtf2M9FzAR
 const isTelemetryDisabled = process.env.DO_NOT_TRACK === '1' || process.env.DO_NOT_TRACK === 'true';
 
 const analytics = (!isTelemetryDisabled && posthogApiKey) 
-  ? new PostHog(posthogApiKey, { host: 'https://us.posthog.com' }) 
+  ? new PostHog(posthogApiKey, { 
+      host: 'https://us.i.posthog.com', // PERBAIKAN 2: Gunakan .i. (Ingestion Host)
+      flushAt: 1,                      // PERBAIKAN 3: Kirim segera setelah 1 event
+      flushInterval: 0                 // Jangan tunggu antrean
+    }) 
   : null;
 
 function getShellCommandAndArgs(scriptName, args) {
   const scriptPath = join(rootDir, scriptName);
 
   if (process.platform === "win32") {
-    // 1. Coba cari Git Bash di lokasi default
     const bashPaths = [
       "C:\\Program Files\\Git\\bin\\bash.exe",
       "C:\\Program Files (x86)\\Git\\bin\\bash.exe",
@@ -40,13 +43,11 @@ function getShellCommandAndArgs(scriptName, args) {
       }
     }
 
-    // 2. Coba cari 'bash' di PATH
     const bashCheck = spawnSync("bash", ["-c", "echo ok"], { shell: true });
     if (bashCheck.status === 0) {
       return { cmd: "bash", args: [scriptPath, ...args] };
     }
 
-    // 3. Fallback ke WSL
     console.log("⚠️  Git Bash tidak ditemukan. Mencoba menggunakan WSL...");
     const wslCheck = spawnSync("wsl", ["--status"], { shell: true });
     if (wslCheck.status === 0) {
@@ -56,13 +57,11 @@ function getShellCommandAndArgs(scriptName, args) {
       return { cmd: "wsl", args: ["bash", wslScriptPath, ...args] };
     }
 
-    // 4. Gagal total
     console.error("❌ ERROR: Git Bash atau WSL tidak ditemukan.");
     console.error("Silakan instal Git for Windows (https://git-scm.com/download/win) terlebih dahulu.");
     process.exit(1);
   }
 
-  // Linux / macOS
   return { cmd: "bash", args: [scriptPath, ...args] };
 }
 
@@ -76,7 +75,6 @@ async function main() {
   // Kirim Telemetri ke PostHog Cloud
   if (analytics) {
     analytics.capture({
-      // Gunakan hostname + OS sebagai ID anonim
       distinctId: `${os.hostname()}_${process.platform}`, 
       event: isUninstall ? 'global_uninstall' : 'global_install',
       properties: {
@@ -93,14 +91,12 @@ async function main() {
 
   const result = spawnSync(cmd, args, {
     stdio: "inherit",
-    cwd: process.cwd(), // Memastikan instalasi mengarah ke folder tempat user mengetik
+    cwd: process.cwd(),
   });
 
   // Pastikan event PostHog terkirim sebelum aplikasi ditutup
   if (analytics) {
-    await analytics.shutdown().catch(() => {
-      // Abaikan error jaringan secara senyap
-    });
+    await analytics.shutdown().catch(() => {});
   }
 
   if (result.error) {
