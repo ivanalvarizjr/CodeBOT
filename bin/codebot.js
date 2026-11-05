@@ -65,9 +65,11 @@ function main() {
 
   console.log(`\n🚀 Menjalankan ${scriptName}...\n`);
 
+  // Ambil cmd dan args dari fungsi
   const { cmd, args } = getShellCommandAndArgs(scriptName, scriptArgs);
 
-  const result = spawnSync(bashCmd, [installScript, ...args], {
+  // PERBAIKAN: Gunakan 'cmd' dan 'args' di sini, bukan 'bashCmd' dan 'installScript'
+  const result = spawnSync(cmd, args, {
     stdio: "inherit",
     cwd: process.cwd(),
   });
