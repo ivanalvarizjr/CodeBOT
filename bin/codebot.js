@@ -4,10 +4,26 @@ import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { PostHog } from 'posthog-node';
+import dotenv from 'dotenv';
+import os from 'node:os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = join(__dirname, "..");
+
+// ==========================================
+// 1. KONFIGURASI ENVIRONMENT & TELEMETRI
+// ==========================================
+dotenv.config({ path: join(process.cwd(), '.env') });
+dotenv.config({ path: join(rootDir, '.env') }); 
+
+const posthogApiKey = process.env.POSTHOG_API_KEY || 'phc_kWvYUyqeyEeMwtf2M9FzARoxcTE4t5nGnQBARcHJ8UP5';
+const isTelemetryDisabled = process.env.DO_NOT_TRACK === '1' || process.env.DO_NOT_TRACK === 'true';
+
+const analytics = (!isTelemetryDisabled && posthogApiKey) 
+  ? new PostHog(posthogApiKey, { host: 'https://us.posthog.com' }) 
+  : null;
 
 function getShellCommandAndArgs(scriptName, args) {
   const scriptPath = join(rootDir, scriptName);
@@ -30,25 +46,19 @@ function getShellCommandAndArgs(scriptName, args) {
       return { cmd: "bash", args: [scriptPath, ...args] };
     }
 
-    // 3. Fallback ke WSL jika Git Bash benar-benar tidak ada
+    // 3. Fallback ke WSL
     console.log("⚠️  Git Bash tidak ditemukan. Mencoba menggunakan WSL...");
     const wslCheck = spawnSync("wsl", ["--status"], { shell: true });
     if (wslCheck.status === 0) {
-      // Konversi path Windows (D:\...) ke format WSL (/mnt/d/...)
       const wslScriptPath = scriptPath
         .replace(/\\/g, "/")
-        .replace(
-          /^([A-Za-z]):/,
-          (match, drive) => `/mnt/${drive.toLowerCase()}`,
-        );
+        .replace(/^([A-Za-z]):/, (match, drive) => `/mnt/${drive.toLowerCase()}`);
       return { cmd: "wsl", args: ["bash", wslScriptPath, ...args] };
     }
 
-    // 4. Jika semuanya gagal
+    // 4. Gagal total
     console.error("❌ ERROR: Git Bash atau WSL tidak ditemukan.");
-    console.error(
-      "Silakan instal Git for Windows (https://git-scm.com/download/win) terlebih dahulu.",
-    );
+    console.error("Silakan instal Git for Windows (https://git-scm.com/download/win) terlebih dahulu.");
     process.exit(1);
   }
 
@@ -56,23 +66,42 @@ function getShellCommandAndArgs(scriptName, args) {
   return { cmd: "bash", args: [scriptPath, ...args] };
 }
 
-function main() {
+async function main() {
   const userArgs = process.argv.slice(2);
   const isUninstall = userArgs[0] === "uninstall";
 
   const scriptName = isUninstall ? "uninstall.sh" : "install.sh";
   const scriptArgs = isUninstall ? userArgs.slice(1) : userArgs;
 
+  // Kirim Telemetri ke PostHog Cloud
+  if (analytics) {
+    analytics.capture({
+      // Gunakan hostname + OS sebagai ID anonim
+      distinctId: `${os.hostname()}_${process.platform}`, 
+      event: isUninstall ? 'global_uninstall' : 'global_install',
+      properties: {
+        os: process.platform,
+        node_version: process.version,
+        is_ci: process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true'
+      }
+    });
+  }
+
   console.log(`\n🚀 Menjalankan ${scriptName}...\n`);
 
-  // Ambil cmd dan args dari fungsi
   const { cmd, args } = getShellCommandAndArgs(scriptName, scriptArgs);
 
-  // PERBAIKAN: Gunakan 'cmd' dan 'args' di sini, bukan 'bashCmd' dan 'installScript'
   const result = spawnSync(cmd, args, {
     stdio: "inherit",
-    cwd: process.cwd(),
+    cwd: process.cwd(), // Memastikan instalasi mengarah ke folder tempat user mengetik
   });
+
+  // Pastikan event PostHog terkirim sebelum aplikasi ditutup
+  if (analytics) {
+    await analytics.shutdown().catch(() => {
+      // Abaikan error jaringan secara senyap
+    });
+  }
 
   if (result.error) {
     console.error(`❌ Gagal: ${result.error.message}`);

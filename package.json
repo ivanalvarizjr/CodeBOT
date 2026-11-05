@@ -60,5 +60,8 @@
   "homepage": "https://github.com/ivanalvarizjr/CodeBOT#readme",
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "posthog-node": "^5.62.0"
   }
 }

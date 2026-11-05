@@ -1,0 +1,140 @@
+/**
+ * Capture-related types
+ */
+
+import type { Properties } from './common'
+
+/**
+ * These are known events PostHog events that can be processed by the `beforeCapture` function
+ * That means PostHog functionality does not rely on receiving 100% of these for calculations
+ * So, it is safe to sample them to reduce the volume of events sent to PostHog
+ */
+export type KnownEventName =
+    | '$heatmaps_data'
+    | '$opt_in'
+    | '$exception'
+    | '$$heatmap'
+    | '$web_vitals'
+    | '$dead_click'
+    | '$dead_swipe'
+    | '$autocapture'
+    | '$copy_autocapture'
+    | '$rageclick'
+
+/**
+ * Known events that can be safely edited in beforeCapture without breaking PostHog functionality
+ */
+export type KnownUnsafeEditableEvent =
+    | '$set'
+    | '$pageview'
+    | '$pageleave'
+    | '$identify'
+    | '$groupidentify'
+    | '$create_alias'
+    | '$feature_flag_called'
+
+export type EventName =
+    | KnownUnsafeEditableEvent
+    | KnownEventName
+    // magic value so that the type of EventName is a set of known strings or any other string
+    // which means you get autocomplete for known strings
+    // but no type complaints when you add an arbitrary string
+    | (string & {})
+
+export interface CaptureResult {
+    uuid: string
+    event: EventName
+    properties: Properties
+    $set?: Properties
+    $set_once?: Properties
+    $unset?: string[]
+    timestamp?: Date
+}
+
+export interface CaptureOptions {
+    /**
+     * Used when `$identify` is called
+     * Will set person properties overriding previous values
+     */
+    $set?: Properties
+
+    /**
+     * Used when `$identify` is called
+     * Will set person properties but only once, it will NOT override previous values
+     */
+    $set_once?: Properties
+
+    /**
+     * Used to unset person properties
+     */
+    $unset?: string[]
+
+    /**
+     * Used to override the desired endpoint for the captured event
+     * @internal
+     */
+    _url?: string
+
+    /**
+     * key of queue, e.g. 'sessionRecording' vs 'event'
+     * @internal
+     */
+    _batchKey?: string
+
+    /**
+     * If set, overrides and disables config.properties_string_max_length
+     * @internal
+     */
+    _noTruncate?: boolean
+
+    /**
+     * If set, sends the event immediately instead of adding it to the batched queue.
+     *
+     * The batched queue drains with `sendBeacon` when the page hides, and an immediate send does
+     * not use that queue. On an active page, the SDK keeps its normal transport so failed requests
+     * can be retried. By default this is `fetch`, which keeps small requests alive across a navigation,
+     * or XHR when `fetch` is unavailable. Once PostHog's own `pagehide` handler (or `unload` fallback)
+     * marks the page as unloading, the SDK prefers `sendBeacon`, unless an explicit transport,
+     * a required response, or `request_headers` prevent it. Captures from `beforeunload` or `pagehide`
+     * listeners that run before PostHog's handler still use their normal transport. This is best effort,
+     * not a guarantee: XHR and requests too large for `fetch` keepalive can be cancelled by navigation.
+     * To always use a beacon, set `{ transport: 'sendBeacon' }`, but note that accepted beacons cannot
+     * report server failures to the SDK for retries.
+     */
+    send_instantly?: boolean
+
+    /**
+     * If set, skips the client side rate limiting
+     */
+    skip_client_rate_limiting?: boolean
+
+    /**
+     * If set, overrides the desired transport method
+     */
+    transport?: 'XHR' | 'fetch' | 'sendBeacon'
+
+    /**
+     * If set, overrides the current timestamp. UTC is preferred; non-UTC input is converted to UTC.
+     */
+    timestamp?: Date
+
+    /**
+     * If set, overrides the auto-generated event uuid. The value must be a valid UUID;
+     * invalid values are ignored and a new UUID is generated. Useful for cross-source
+     * idempotency (e.g. a server webhook and a browser success page both firing for the
+     * same business transaction): emit both events with the same deterministic uuid so
+     * storage can eventually deduplicate them. Capture itself does not deduplicate resent
+     * events, and PostHog does not guarantee strict immediate deduplication.
+     */
+    uuid?: string
+
+    /**
+     * Internal flag set by captureException() / sendExceptionEvent() to indicate this $exception
+     * event originated from the proper exception capture path. Used to warn users who call
+     * capture('$exception') directly.
+     * @internal
+     */
+    _originatedFromCaptureException?: boolean
+}
+
+export type BeforeSendFn = (cr: CaptureResult) => CaptureResult | null

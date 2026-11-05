@@ -257,6 +257,68 @@ curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/v4.0.1/instal
 
 These commands execute a downloaded installer script. Review the [official installation instructions](https://github.com/JuliusBrussee/caveman/blob/main/INSTALL.md) before running the script if you want to inspect it first. Check the Caveman repository for the list of supported agents and the latest configuration options.
 
+Berikut adalah pembaruan untuk bagian **Privacy & Telemetry** di `README.md` Anda. Bagian ini dirancang untuk sangat transparan, menjelaskan *mengapa* telemetri ini penting (untuk pengembangan yang terukur), dan memberikan kendali penuh kepada pengguna.
+
+Silakan ganti bagian **Privacy & Telemetry** yang lama di `README.md` Anda dengan teks di bawah ini:
+
+## Privacy & Telemetry
+
+To help us understand how CodeBOT is being used and to continuously improve its features, CodeBOT includes **anonymous usage telemetry**. We believe that building a better tool requires measurable data, but we also deeply respect your privacy.
+
+**What is collected?**
+* The command executed (e.g., `global_install`, `global_uninstall`).
+* Basic environment info: Operating System, Node.js version, and whether it's running in a CI/CD environment.
+* A completely anonymous machine identifier (hashed hostname + OS) to count unique users.
+
+**What is NOT collected?**
+* Your source code, file paths, repository names, or any personal data (PII).
+* IP addresses are processed anonymously by our analytics provider and are not stored in a way that identifies you.
+
+**Where is the data sent?**
+Telemetry is sent securely to **PostHog Cloud**. 
+*(Note: The `phc_...` API key you might see in the source code is a public, write-only ingestion key. It cannot be used to read data or access our PostHog account).*
+
+### 🛑 How to Opt-Out
+
+We fully respect your choice to opt-out. 
+
+**Important:** Running `npm install -g codebott` **only downloads** the package and does **not** send any telemetry. Telemetry is only triggered when you actually **run** the `codebott` or `codebott uninstall` command.
+
+If you wish to disable telemetry, you must set the environment variable **before** typing the `codebott` command.
+
+**For Windows (PowerShell):**
+1. Open PowerShell.
+2. Run this command and press Enter:
+   ```powershell
+   $env:DO_NOT_TRACK="1"
+   ```
+3. Then, run the installer:
+   ```powershell
+   codebott
+   ```
+
+**For macOS / Linux (Terminal):**
+1. Open your terminal.
+2. Run this command and press Enter:
+   ```bash
+   export DO_NOT_TRACK=1
+   ```
+3. Then, run the installer:
+   ```bash
+   codebott
+   ```
+
+**Want to opt-out permanently? (Optional)**
+*   **Windows**: Search for "Environment Variables" in the Start menu and add a new User Variable named `DO_NOT_TRACK` with the value `1`.
+*   **macOS/Linux**: Add `export DO_NOT_TRACK=1` to your `~/.bashrc` or `~/.zshrc` file.
+
+### 🔧 Advanced Configuration (For Privacy-Focused Users)
+If you want to route telemetry to your own self-hosted PostHog instance (or disable it via configuration file), you can create a `.env` file in the directory where you run CodeBOT:
+```env
+POSTHOG_API_KEY=phc_your_own_api_key_here
+```
+If you provide your own key, no data will be sent to our PostHog Cloud.
+
 ## Repository Guide
 
 - [`profiles/canonical/`](profiles/canonical/) - canonical role profiles.
