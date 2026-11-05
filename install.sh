@@ -108,33 +108,54 @@ merge_md_block() {
         return 0
     fi
 
-    # Cek apakah kedua marker ada
-    if grep -qF "$begin_marker" "$target_file" && grep -qF "$end_marker" "$target_file"; then
+    # Cek apakah penanda ada (setidaknya salah satu, untuk mendeteksi korupsi)
+    if grep -qF "$begin_marker" "$target_file" || grep -qF "$end_marker" "$target_file"; then
         local tmp_file="${target_file}.tmp"
         
-        # Menggunakan awk dengan pembersihan \r (CRLF) agar aman di Windows
+        # Robust awk: Ganti blok pertama, hapus semua blok duplikat di bawahnya
         awk -v begin="$begin_marker" -v end="$end_marker" -v src="$source_file" '
+            BEGIN { in_block=0; replaced=0 }
             { sub(/\r$/, "") }
-            $0 == begin { print; while ((getline line < src) > 0) print line; skip=1; next }
-            $0 == end { skip=0 }
-            !skip { print }
+            $0 == begin {
+                if (replaced == 0) {
+                    print $0
+                    while ((getline line < src) > 0) print line
+                    in_block=1
+                    replaced=1
+                    next
+                } else {
+                    in_block=1
+                    next
+                }
+            }
+            $0 == end {
+                if (in_block == 1) {
+                    in_block=0
+                    if (replaced == 1) {
+                        print $0
+                        replaced=2
+                    }
+                    next
+                }
+            }
+            !in_block { print }
         ' "$target_file" > "$tmp_file"
 
-        # Validasi: pastikan file sementara tidak kosong
         if [ -s "$tmp_file" ]; then
-            if cmp -s "$target_file" "$tmp_file"; then
+            # Cek perbedaan dengan mengabaikan line endings
+            if diff -q -w "$target_file" "$tmp_file" >/dev/null 2>&1; then
                 echo -e "  ${GREEN}[SKIP]${NC} Aturan CodeBOT di $(basename "$target_file") sudah versi terbaru."
                 rm -f "$tmp_file"
             else
                 mv "$tmp_file" "$target_file"
-                echo -e "  ${YELLOW}[UPDATE]${NC} Aturan CodeBOT di $(basename "$target_file") diperbarui."
+                echo -e "  ${YELLOW}[UPDATE]${NC} Aturan CodeBOT di $(basename "$target_file") diperbarui dan dibersihkan dari duplikasi."
             fi
         else
             echo -e "  ${RED}[ERROR]${NC} Gagal memperbarui blok CodeBOT di $(basename "$target_file"). File asli dipertahankan."
             rm -f "$tmp_file"
         fi
     else
-        # Jika marker tidak ada, gunakan append aman (abaikan \r untuk pengecekan duplikasi)
+        # Jika penanda tidak ada, cek duplikasi konten murni
         local target_clean=$(mktemp)
         local source_clean=$(mktemp)
         tr -d '\r' < "$target_file" > "$target_clean"
@@ -235,7 +256,6 @@ if [ -n "$SKILL_SRC_DIR" ]; then
         [ -d "$skill_path" ] || continue
         skill_name=$(basename "$skill_path")
         
-        # Handling khusus untuk folder parent software-engineer-skills (flattening sub-skills)
         if [ "$skill_name" = "software-engineer-skills" ]; then
             for sub_skill_path in "$skill_path"/*/; do
                 [ -d "$sub_skill_path" ] || continue
@@ -243,7 +263,6 @@ if [ -n "$SKILL_SRC_DIR" ]; then
                 [ -n "$EXTRA_SKILL_DIR" ] && safe_copy_dir "$sub_skill_path" "$EXTRA_SKILL_DIR"
             done
         else
-            # Handling skill standar (flat)
             safe_copy_dir "$skill_path" "$SKILL_DIR"
             [ -n "$EXTRA_SKILL_DIR" ] && safe_copy_dir "$skill_path" "$EXTRA_SKILL_DIR"
         fi

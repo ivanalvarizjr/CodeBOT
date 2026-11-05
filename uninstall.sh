@@ -39,19 +39,24 @@ remove_md_block() {
         return 0
     fi
 
-    if grep -qF "$begin_marker" "$target_file" && grep -qF "$end_marker" "$target_file"; then
-            awk -v begin="$begin_marker" -v end="$end_marker" '
+    # Jika salah satu marker ada (untuk mengatasi file yang korup), bersihkan.
+    if grep -qF "$begin_marker" "$target_file" || grep -qF "$end_marker" "$target_file"; then
+        local tmp_file="${target_file}.tmp"
+        
+        # Hapus semua teks di antara BEGIN dan END (inklusif)
+        awk -v begin="$begin_marker" -v end="$end_marker" '
             { sub(/\r$/, "") }
             $0 == begin { skip=1; next }
             $0 == end { skip=0; next }
             !skip { print }
-        ' "$target_file" > "${target_file}.tmp"
+        ' "$target_file" > "$tmp_file"
         
-        if [ -s "${target_file}.tmp" ]; then
-            mv "${target_file}.tmp" "$target_file"
+        # Cek apakah file masih memiliki konten nyata (bukan hanya spasi/kosong)
+        if grep -q '[^[:space:]]' "$tmp_file"; then
+            mv "$tmp_file" "$target_file"
             echo -e "  ${GREEN}[CLEANED]${NC} Aturan CodeBOT dihapus dari $(basename "$target_file")."
         else
-            rm "$target_file" "${target_file}.tmp"
+            rm "$target_file" "$tmp_file"
             echo -e "  ${CYAN}[DELETED]${NC} $(basename "$target_file") kosong dan telah dihapus."
         fi
     fi
@@ -97,7 +102,6 @@ if [ "$choice" == "1" ] || [ "$choice" == "3" ]; then
 
     remove_md_block "$COPILOT_DIR/copilot-instructions.md"
 
-    # 4. Hapus Skills (Mendukung nested folder)
     if [ -n "$SKILL_SRC_DIR" ]; then
         for skill_path in "$SKILL_SRC_DIR/"*/; do
             [ -d "$skill_path" ] || continue
@@ -113,8 +117,6 @@ if [ "$choice" == "1" ] || [ "$choice" == "3" ]; then
                     fi
                 done
             else
-                # Handling skill standar (flat), termasuk prompt-engineer-skill dan software-engineer-debugging.
-                # rm -rf akan menghapus folder beserta isinya secara rekursif (references/ dan scripts/).
                 if [ -d "$COPILOT_DIR/skills/$skill_name" ]; then
                     rm -rf "$COPILOT_DIR/skills/$skill_name"
                     echo -e "  ${RED}[REMOVED]${NC} Skill $skill_name (beserta references/scripts)"
@@ -148,7 +150,6 @@ if [ "$choice" == "2" ] || [ "$choice" == "3" ]; then
         remove_md_block "$(pwd)/AGENTS.md"
     fi
 
-    # 4. Hapus Skills (Mendukung nested folder)
     if [ -n "$SKILL_SRC_DIR" ]; then
         for skill_path in "$SKILL_SRC_DIR/"*/; do
             [ -d "$skill_path" ] || continue
@@ -168,8 +169,6 @@ if [ "$choice" == "2" ] || [ "$choice" == "3" ]; then
                     fi
                 done
             else
-                # Handling skill standar (flat), termasuk prompt-engineer-skill dan software-engineer-debugging.
-                # rm -rf menghapus seluruh direktori beserta file di dalamnya.
                 if [ -d "$CODEX_DIR/skills/$skill_name" ]; then
                     rm -rf "$CODEX_DIR/skills/$skill_name"
                     echo -e "  ${RED}[REMOVED]${NC} Skill $skill_name (Codex)"
