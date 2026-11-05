@@ -1,6 +1,6 @@
 {
   "name": "codebott",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "description": "Cross-platform AI multi-agent orchestration harness for GitHub Copilot and OpenAI Codex.",
   "type": "module",
   "main": "bin/codebot.js",
