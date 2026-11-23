@@ -63,6 +63,6 @@
   },
   "dependencies": {
     "dotenv": "^18.0.9",
-    "posthog-node": "^5.62.0"
+    "posthog-node": "^6.0.5"
   }
 }
